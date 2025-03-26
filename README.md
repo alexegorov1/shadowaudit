@@ -1,6 +1,5 @@
 # shadowaudit
 
-ShadowAudit
 ShadowAudit is a modular forensic analysis framework designed to help incident responders and forensic engineers identify residual artifacts of compromise on endpoint systems. It focuses not on active detection or prevention, but on post-compromise visibility—retrieving evidence that attackers may have removed or overlooked during cleanup.
 
 The tool was built with practical DFIR workflows in mind. It allows analysts to collect, normalize, and analyze forensic artifacts left on a system, such as execution history, registry changes, orphaned scheduled tasks, WMI persistence, and more. These traces are frequently missed by traditional monitoring tools, especially when they occur outside of real-time visibility windows.
