@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "shadowaudit"
+version = "0.1.0"
+description = "Automated forensic artifact collection platform"
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "PyYAML>=6.0",
+    "colorama>=0.4.6",
+    "jsonschema>=4.0.0"
+]
