@@ -1,0 +1,24 @@
+general:
+  output_path: ./results
+  log_level: INFO
+  language: en
+
+collector:
+  enabled_modules:
+    - filesystem
+    - registry
+    - logon
+  exclude_paths:
+    - "C:\\Windows\\Temp"
+    - "/var/cache"
+  max_depth: 5
+
+analyzer:
+  enable_heuristics: true
+  confidence_threshold: 0.7
+
+reporter:
+  formats:
+    - json
+    - html
+  template_path: ./templates
