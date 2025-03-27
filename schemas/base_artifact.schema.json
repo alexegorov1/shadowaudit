@@ -37,5 +37,21 @@
       "minLength": 1
     }
   },
-  "additionalProperties": true
+  "additionalProperties": true,
+  "$defs": {
+    "filesystemArtifact": {
+      "type": "object",
+      "properties": {
+        "file_path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }
+      }
+    },
+    "registryArtifact": {
+      "type": "object",
+      "properties": {
+        "registry_key": { "type": "string" },
+        "value_data": { "type": "string" }
+      }
+    }
+  }
 }
