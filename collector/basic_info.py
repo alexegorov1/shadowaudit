@@ -14,10 +14,11 @@ class BasicInfoCollector(BaseCollector):
         hostname = socket.gethostname()
         user = getpass.getuser()
         system_platform = platform.system()
-        boot_time = psutil.boot_time()
-        uptime_seconds = int(time.time() - boot_time)
-        boot_time_iso = datetime.fromtimestamp(boot_time, tz=timezone.utc).isoformat()
-        collected_at = datetime.utcnow().replace(tzinfo=timezone.utc).isoformat()
+        boot_time_ts = psutil.boot_time()
+        current_time_utc = datetime.utcnow().replace(tzinfo=timezone.utc)
+        collected_at = current_time_utc.isoformat()
+        boot_time_iso = datetime.fromtimestamp(boot_time_ts, tz=timezone.utc).isoformat()
+        uptime_seconds = int(current_time_utc.timestamp() - boot_time_ts)
 
         artifact = {
             "host_id": hostname,
@@ -29,8 +30,8 @@ class BasicInfoCollector(BaseCollector):
             "hostname": hostname,
             "user": user,
             "platform": system_platform,
-            "uptime": uptime_seconds,
-            "boot_time": boot_time_iso
+            "boot_time": boot_time_iso,
+            "uptime": uptime_seconds
         }
 
         return [artifact]
