@@ -1,16 +1,13 @@
 from abc import ABC, abstractmethod
+from typing import List, Dict
 
 class BaseCollector(ABC):
     @abstractmethod
-    def collect(self):
+    def collect(self) -> List[Dict]:
+        """Collects and returns a list of artifact dictionaries."""
         pass
 
-class BaseAnalyzer(ABC):
     @abstractmethod
-    def analyze(self, data):
-        pass
-
-class BaseReporter(ABC):
-    @abstractmethod
-    def generate_report(self, results):
+    def get_name(self) -> str:
+        """Returns the unique name of the collector module."""
         pass
