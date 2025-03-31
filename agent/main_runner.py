@@ -1,49 +1,47 @@
-import sys
 from core.config_loader import ConfigLoader
 from core.logger import LoggerFactory
 from core.schema_validator import ArtifactSchemaValidator
-from collector.example_collector import ExampleCollector  # Replace with real collector module
+from core.plugin_loader import discover_collectors
 
 def run_collection():
-    try:
-        config = ConfigLoader().get("general")
-        logger = LoggerFactory(config).create_logger("shadowaudit.agent")
-        validator = ArtifactSchemaValidator()
-    except Exception as init_error:
-        print(f"[FATAL] Initialization failed: {init_error}", file=sys.stderr)
-        sys.exit(1)
+    config = ConfigLoader().get("general")
+    logger = LoggerFactory(config).create_logger("shadowaudit.agent")
+    validator = ArtifactSchemaValidator()
 
-    collector = ExampleCollector()
-    logger.info(f"Running collector: {collector.__class__.__name__}")
+    collectors = discover_collectors()
+    logger.info(f"{len(collectors)} collectors discovered.")
 
-    try:
-        raw_artifacts = collector.collect()
-    except Exception as collection_error:
-        logger.error(f"Collector {collector.__class__.__name__} failed: {collection_error}")
-        return []
+    all_valid_artifacts = []
 
-    if not isinstance(raw_artifacts, list):
-        logger.error(f"Collector output must be a list, got {type(raw_artifacts).__name__}")
-        return []
+    for collector in collectors:
+        collector_name = collector.get_name()
+        logger.info(f"Running collector: {collector_name}")
 
-    validated_artifacts = []
-    failed_count = 0
-
-    for idx, artifact in enumerate(raw_artifacts, start=1):
         try:
-            validator.validate_artifact(artifact)
-            validated_artifacts.append(artifact)
-        except ValueError as validation_error:
-            failed_count += 1
-            artifact_source = artifact.get("source", "unknown")
-            logger.warning(
-                f"[{idx}] Artifact validation failed (source: {artifact_source}): {validation_error}"
-            )
+            artifacts = collector.collect()
+        except Exception as e:
+            logger.error(f"Collector '{collector_name}' failed during collection: {e}")
+            continue
 
-    logger.info(
-        f"Collector {collector.__class__.__name__} returned {len(raw_artifacts)} artifacts. "
-        f"{len(validated_artifacts)} passed validation, {failed_count} failed."
-    )
+        if not isinstance(artifacts, list):
+            logger.error(f"Collector '{collector_name}' returned non-list result: {type(artifacts).__name__}")
+            continue
 
-    return validated_artifacts
+        for index, artifact in enumerate(artifacts, start=1):
+            try:
+                validator.validate_artifact(artifact)
+                all_valid_artifacts.append(artifact)
+            except ValueError as e:
+                logger.warning(
+                    f"Validation failed for artifact #{index} from '{collector_name}': {e}"
+                )
+
+        logger.info(
+            f"Collector '{collector_name}' completed. "
+            f"{len(artifacts)} returned, "
+            f"{len([a for a in artifacts if a in all_valid_artifacts])} valid."
+        )
+
+    logger.info(f"Total valid artifacts collected: {len(all_valid_artifacts)}")
+    return all_valid_artifacts
 
