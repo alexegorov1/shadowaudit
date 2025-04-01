@@ -4,13 +4,13 @@ import hashlib
 import getpass
 import platform
 import glob
-import pefile
 import psutil
 import subprocess
 from datetime import datetime, timezone
 from core.interfaces import BaseCollector
 from core.config_loader import ConfigLoader
 from core.logger import LoggerFactory
+from core.pe_inspector import is_pe_file
 
 class FilesystemCollector(BaseCollector):
     def __init__(self):
@@ -25,7 +25,7 @@ class FilesystemCollector(BaseCollector):
     def collect(self) -> list[dict]:
         hostname = socket.gethostname()
         current_user = getpass.getuser()
-        collected_at = datetime.utcnow().replace(tz=timezone.utc).isoformat()
+        collected_at = datetime.utcnow().replace(tzinfo=timezone.utc).isoformat()
 
         fs_config = self.collector_config.get("filesystem", {})
         include_dirs = fs_config.get("include_dirs", [])
@@ -54,7 +54,7 @@ class FilesystemCollector(BaseCollector):
                 file_size = stat.st_size
                 created_time = datetime.fromtimestamp(stat.st_ctime, tz=timezone.utc).isoformat()
                 sha256_hash = self._hash_file(abs_path)
-                is_pe = self._is_pe_file(abs_path) if self.system_platform == "Windows" else False
+                is_pe = is_pe_file(abs_path) if self.system_platform == "Windows" else False
                 is_signed = self._is_signed_file(abs_path, sigcheck_path) if self.system_platform == "Windows" and is_pe else False
 
                 artifact = {
@@ -92,16 +92,6 @@ class FilesystemCollector(BaseCollector):
         except Exception as e:
             self.logger.warning(f"Failed to hash file '{file_path}': {e}")
             return "error"
-
-    def _is_pe_file(self, file_path: str) -> bool:
-        try:
-            with open(file_path, "rb") as f:
-                if f.read(2) != b"MZ":
-                    return False
-            pefile.PE(file_path, fast_load=True)
-            return True
-        except Exception:
-            return False
 
     def _is_signed_file(self, file_path: str, sigcheck_path: str) -> bool:
         try:
@@ -142,3 +132,4 @@ class FilesystemCollector(BaseCollector):
                 os.path.join(home, "Pictures", "**")
             ]
         return paths
+
