@@ -93,6 +93,28 @@ class FilesystemCollector(BaseCollector):
             self.logger.warning(f"Failed to hash file '{file_path}': {e}")
             return "error"
 
+    def _check_signature(self, file_path: str) -> bool:
+        try:
+            sigcheck_path = "sigcheck.exe"  # Adjust this path if needed
+            if not os.path.isfile(sigcheck_path):
+                self.logger.debug("sigcheck.exe not found; skipping signature check.")
+                return False
+
+            result = subprocess.run(
+                [sigcheck_path, "-q", "-n", "-c", file_path],
+                capture_output=True,
+                text=True,
+                timeout=5
+            )
+            output = result.stdout.strip().lower()
+            return "signed" in output
+        except subprocess.TimeoutExpired:
+            self.logger.warning(f"Signature check timed out for '{file_path}'")
+        except Exception as e:
+            self.logger.debug(f"Sigcheck failed for '{file_path}': {e}")
+        return False
+
+    
     def _is_signed_file(self, file_path: str, sigcheck_path: str) -> bool:
         try:
             if not os.path.isfile(sigcheck_path):
