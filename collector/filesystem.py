@@ -8,6 +8,7 @@ import pefile
 import psutil
 from datetime import datetime, timezone
 from core.interfaces import BaseCollector
+from core.config_loader import ConfigLoader
 
 class FilesystemCollector(BaseCollector):
     def get_name(self) -> str:
@@ -18,37 +19,32 @@ class FilesystemCollector(BaseCollector):
         current_user = getpass.getuser()
         system_platform = platform.system()
         current_time = datetime.utcnow().replace(tzinfo=timezone.utc).isoformat()
+        config = ConfigLoader().get("collector", {})
+        fs_config = config.get("filesystem", {})
+        include_dirs = fs_config.get("include_dirs", [])
+
+        if not include_dirs:
+            include_dirs = self._get_default_paths(system_platform)
+
+        resolved_paths = []
+        for pattern in include_dirs:
+            expanded = glob.glob(os.path.expandvars(pattern), recursive=True)
+            resolved_paths.extend(expanded)
+
         artifacts = []
 
-        if system_platform != "Windows":
-            return []
-
-        user_dirs = glob.glob("C:\\Users\\*")
-        target_subdirs = [
-            "AppData\\Local\\Temp",
-            "Downloads",
-            "Pictures"
-        ]
-
-        target_paths = []
-        for user_dir in user_dirs:
-            for subdir in target_subdirs:
-                full_path = os.path.join(user_dir, subdir)
-                if os.path.exists(full_path):
-                    target_paths.extend(
-                        glob.glob(os.path.join(full_path, "**"), recursive=True)
-                    )
-
-        for path in target_paths:
+        for path in resolved_paths:
             if not os.path.isfile(path):
                 continue
 
             try:
                 file_size = os.path.getsize(path)
                 sha256_hash = self._hash_file(path)
-                created_time = datetime.fromtimestamp(os.path.getctime(path), tz=timezone.utc).isoformat()
-                is_pe = self._is_pe_file(path)
-                is_signed = False  # Placeholder for future implementation
+                created_time = datetime.fromtimestamp(
+                    os.path.getctime(path), tz=timezone.utc
+                ).isoformat()
+                is_pe = self._is_pe_file(path) if system_platform == "Windows" else False
+                is_signed = False  # Placeholder
 
                 artifact = {
                     "host_id": hostname,
@@ -84,10 +80,31 @@ class FilesystemCollector(BaseCollector):
     def _is_pe_file(self, file_path: str) -> bool:
         try:
             with open(file_path, "rb") as f:
-                dos_header = f.read(2)
-                if dos_header != b"MZ":
+                if f.read(2) != b"MZ":
                     return False
-            pe = pefile.PE(file_path, fast_load=True)
+            pefile.PE(file_path, fast_load=True)
             return True
         except Exception:
             return False
+
+    def _get_default_paths(self, system_platform: str) -> list[str]:
+        paths = []
+        if system_platform == "Windows":
+            user_dirs = glob.glob("C:\\Users\\*")
+            subdirs = [
+                "AppData\\Local\\Temp",
+                "Downloads",
+                "Pictures"
+            ]
+            for user_dir in user_dirs:
+                for subdir in subdirs:
+                    path = os.path.join(user_dir, subdir)
+                    paths.append(os.path.join(path, "**"))
+        elif system_platform == "Linux":
+            home = os.environ.get("HOME", "/home")
+            paths = [
+                "/tmp/**",
+                os.path.join(home, "Downloads", "**"),
+                os.path.join(home, "Pictures", "**")
+            ]
+        return paths
