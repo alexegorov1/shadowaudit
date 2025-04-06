@@ -4,20 +4,22 @@ import getpass
 import uuid
 import hashlib
 import json
+import socket
+import shutil
 from datetime import datetime, timezone
 from typing import Any, Optional, Union
 
 
 def normalize_path(path: str) -> str:
-    return os.path.abspath(os.path.expandvars(os.path.expanduser(path.strip())))
+    return os.path.abspath(os.path.expandvars(os.path.expanduser(str(path).strip())))
 
 
 def is_windows_path(path: str) -> bool:
     return platform.system() == "Windows" or ("\\" in path and ":" in path)
 
 
-def generate_artifact_id(source: str, path: Optional[str] = None, extra: Optional[str] = None) -> str:
-    token = f"{source}::{path or ''}::{extra or uuid.uuid4().hex}"
+def generate_artifact_id(source: str, path: Optional[str] = None, entropy: Optional[str] = None) -> str:
+    token = f"{source}::{path or ''}::{entropy or uuid.uuid4().hex}"
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
 
 
@@ -28,6 +30,39 @@ def get_current_utc_timestamp(compact: bool = False, with_millis: bool = False) 
     if with_millis:
         return now.isoformat(timespec="milliseconds")
     return now.isoformat()
+
+
+def get_iso_timestamp_from_epoch(epoch: float, with_millis: bool = False) -> str:
+    try:
+        dt = datetime.fromtimestamp(epoch, tz=timezone.utc)
+        return dt.isoformat(timespec="milliseconds" if with_millis else "seconds")
+    except Exception:
+        return "1970-01-01T00:00:00Z"
+
+
+def get_current_user() -> str:
+    try:
+        return getpass.getuser()
+    except Exception:
+        return "unknown"
+
+
+def get_system_platform() -> str:
+    try:
+        return platform.system()
+    except Exception:
+        return "unknown"
+
+
+def get_hostname(fqdn: bool = False) -> str:
+    try:
+        return socket.getfqdn() if fqdn else socket.gethostname()
+    except Exception:
+        return "unknown"
+
+
+def get_temp_dir() -> str:
+    return os.environ.get("TEMP") or os.environ.get("TMP") or "/tmp"
 
 
 def safe_load_json_file(file_path: str, default: Any = None) -> Any:
@@ -48,23 +83,16 @@ def safe_save_json_file(file_path: str, data: Union[dict, list], indent: int = 2
         return False
 
 
-def get_current_user() -> str:
-    try:
-        return getpass.getuser()
-    except Exception:
-        return "unknown"
-
-
-def get_system_platform() -> str:
-    try:
-        return platform.system()
-    except Exception:
-        return "unknown"
-
-
 def is_valid_file(path: str) -> bool:
     try:
         return os.path.isfile(path) and os.access(path, os.R_OK)
+    except Exception:
+        return False
+
+
+def is_valid_directory(path: str) -> bool:
+    try:
+        return os.path.isdir(path) and os.access(path, os.X_OK)
     except Exception:
         return False
 
@@ -78,6 +106,41 @@ def get_file_sha256(file_path: str, chunk_size: int = 65536) -> str:
         return sha256.hexdigest()
     except Exception:
         return "error"
+
+
+def generate_session_uid() -> str:
+    return uuid.uuid4().hex
+
+
+def ensure_directory_exists(path: str) -> bool:
+    try:
+        os.makedirs(path, exist_ok=True)
+        return True
+    except Exception:
+        return False
+
+
+def get_disk_usage_percent(path: str = "/") -> float:
+    try:
+        total, used, free = shutil.disk_usage(path)
+        return round((used / total) * 100, 2)
+    except Exception:
+        return 0.0
+
+
+def get_system_uptime() -> float:
+    try:
+        if platform.system() == "Windows":
+            import ctypes
+            from ctypes import wintypes
+            GetTickCount64 = ctypes.windll.kernel32.GetTickCount64
+            GetTickCount64.restype = ctypes.c_ulonglong
+            return round(GetTickCount64() / 1000.0, 2)
+        else:
+            with open("/proc/uptime", "r") as f:
+                return float(f.readline().split()[0])
+    except Exception:
+        return 0.0
 
 
 def generate_session_uid() -> str:
