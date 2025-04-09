@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shadowaudit/schemas/filesystem_artifact.schema.json",
+  "title": "Filesystem Artifact",
+  "description": "Extended schema for filesystem-based artifacts",
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "base_artifact.schema.json"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "file_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$"
+        },
+        "is_pe": {
+          "type": "boolean"
+        },
+        "is_signed": {
+          "type": "boolean"
+        },
+        "created_time": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "file_path",
+        "size",
+        "sha256",
+        "is_pe",
+        "is_signed",
+        "created_time"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}
