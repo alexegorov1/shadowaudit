@@ -1,6 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://shadowaudit/schemas/base_artifact.schema.json",
   "title": "Base Artifact Schema",
+  "description": "Schema defining required fields for any collected artifact in ShadowAudit.",
   "type": "object",
   "required": [
     "host_id",
@@ -13,44 +15,91 @@
   "properties": {
     "host_id": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "description": "Unique identifier of the host where the artifact was collected"
     },
     "source": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "description": "Subsystem or module name that generated the artifact (e.g., filesystem, registry)"
     },
     "collected_at": {
       "type": "string",
-      "format": "date-time"
+      "format": "date-time",
+      "description": "UTC timestamp in ISO 8601 format when the artifact was collected"
     },
     "artifact_type": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "description": "Logical classification of the artifact (e.g., file_scan, task_scheduled)"
     },
     "confidence": {
       "type": "number",
       "minimum": 0.0,
-      "maximum": 1.0
+      "maximum": 1.0,
+      "description": "Confidence score from 0.0 (low) to 1.0 (high)"
     },
     "evidence_type": {
       "type": "string",
-      "minLength": 1
+      "minLength": 1,
+      "description": "Type of forensic evidence (e.g., persistence, execution, anomaly)"
     }
   },
   "additionalProperties": true,
   "$defs": {
     "filesystemArtifact": {
       "type": "object",
+      "title": "Filesystem-Specific Fields",
       "properties": {
-        "file_path": { "type": "string" },
-        "sha256": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }
+        "file_path": {
+          "type": "string",
+          "description": "Full absolute file path"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "File size in bytes"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "SHA-256 hash of file contents"
+        },
+        "is_pe": {
+          "type": "boolean",
+          "description": "True if file is a PE (Portable Executable)"
+        },
+        "is_signed": {
+          "type": "boolean",
+          "description": "True if file has a valid digital signature"
+        },
+        "created_time": {
+          "type": "string",
+          "format": "date-time",
+          "description": "File creation timestamp in ISO 8601 format"
+        }
       }
     },
     "registryArtifact": {
       "type": "object",
+      "title": "Registry-Specific Fields",
       "properties": {
-        "registry_key": { "type": "string" },
-        "value_data": { "type": "string" }
+        "registry_key": {
+          "type": "string",
+          "description": "Full registry key path"
+        },
+        "value_name": {
+          "type": "string",
+          "description": "Registry value name"
+        },
+        "value_data": {
+          "type": "string",
+          "description": "Actual data stored in the registry value"
+        },
+        "value_type": {
+          "type": "string",
+          "description": "Registry value type (e.g., REG_SZ, REG_DWORD)"
+        }
       }
     }
   }
