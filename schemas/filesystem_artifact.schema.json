@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://shadowaudit/schemas/filesystem_artifact.schema.json",
   "title": "Filesystem Artifact",
-  "description": "Extended schema for filesystem-based artifacts",
+  "description": "Extended schema for filesystem-based forensic artifacts, inherits base artifact structure.",
   "type": "object",
   "allOf": [
     {
@@ -13,25 +13,31 @@
       "properties": {
         "file_path": {
           "type": "string",
-          "minLength": 1
+          "minLength": 1,
+          "description": "Absolute path to the file"
         },
         "size": {
           "type": "integer",
-          "minimum": 0
+          "minimum": 0,
+          "description": "Size of the file in bytes"
         },
         "sha256": {
           "type": "string",
-          "pattern": "^[a-fA-F0-9]{64}$"
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "SHA-256 hash of the file"
         },
         "is_pe": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Indicates whether the file is a PE executable (Windows only)"
         },
         "is_signed": {
-          "type": "boolean"
+          "type": "boolean",
+          "description": "Indicates whether the file has a valid digital signature"
         },
         "created_time": {
           "type": "string",
-          "format": "date-time"
+          "format": "date-time",
+          "description": "File creation timestamp in ISO 8601 UTC format"
         }
       },
       "required": [
@@ -46,3 +52,4 @@
     }
   ]
 }
+
