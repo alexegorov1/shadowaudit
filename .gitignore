@@ -1,45 +1,65 @@
-# Python cache and compiled files
+# ──────────────── Python bytecode ────────────────
 __pycache__/
 *.py[cod]
-*.so
+*.pyo
 *.pyd
+*.so
 
-# Virtual environments
+# ──────────────── Virtual environments ────────────────
 .env/
 .venv/
 env/
 venv/
 
-# Test and runtime output
-results/
+# ──────────────── Logs, runtime, test artifacts ────────────────
 logs/
+results/
 coverage/
 *.log
+*.out
+*.err
 
-# Editor and IDE configs
+# ──────────────── IDE/editor configs ────────────────
 .vscode/
 .idea/
+*.sublime-project
+*.sublime-workspace
 *.swp
+*.swo
 
-# Build artifacts
+# ──────────────── Build/dist artifacts ────────────────
 build/
 dist/
-*.egg-info/
 .eggs/
+*.egg-info/
 
-# OS-specific
-.DS_Store
-Thumbs.db
-
-# PyInstaller bundles
+# ──────────────── PyInstaller ────────────────
 *.spec
 
-# Schema cache or generated docs
+# ──────────────── Documentation and schemas ────────────────
 *.html
 *.pdf
+*.md.html
 *.db
 
-# Temporary
+# ──────────────── OS-specific garbage ────────────────
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# ──────────────── Temporary/backup/swap ────────────────
 *.bak
 *.tmp
 *.orig
+*.old
+*~
+
+# ──────────────── Security ────────────────
+shadowaudit-secrets.yaml
+credentials.json
+token.txt
+
+# ──────────────── Custom exclusions (editable) ────────────────
+# !README.md
+# !schemas/
+# !config.yaml.example
