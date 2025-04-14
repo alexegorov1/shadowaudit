@@ -1,24 +1,31 @@
-import socket
-import getpass
-import platform
-import time
-from datetime import datetime, timezone
 import psutil
+from datetime import datetime, timezone
 from core.interfaces import BaseCollector
+from core.utils import (
+    get_hostname,
+    get_current_user,
+    get_system_platform,
+    get_current_utc_timestamp
+)
 
 class BasicInfoCollector(BaseCollector):
     def get_name(self) -> str:
         return "basic_info"
 
     def collect(self) -> list[dict]:
-        hostname = socket.gethostname()
-        user = getpass.getuser()
-        system_platform = platform.system()
-        boot_time_ts = psutil.boot_time()
-        current_time_utc = datetime.utcnow().replace(tzinfo=timezone.utc)
-        collected_at = current_time_utc.isoformat()
-        boot_time_iso = datetime.fromtimestamp(boot_time_ts, tz=timezone.utc).isoformat()
-        uptime_seconds = int(current_time_utc.timestamp() - boot_time_ts)
+        hostname = get_hostname()
+        user = get_current_user()
+        system_platform = get_system_platform()
+        now_utc = get_current_utc_timestamp()
+        collected_at = now_utc.isoformat()
+
+        try:
+            boot_ts = psutil.boot_time()
+            uptime = int(now_utc.timestamp() - boot_ts)
+            boot_time = datetime.fromtimestamp(boot_ts, tz=timezone.utc).isoformat()
+        except Exception:
+            uptime = -1
+            boot_time = "unknown"
 
         artifact = {
             "host_id": hostname,
@@ -30,8 +37,8 @@ class BasicInfoCollector(BaseCollector):
             "hostname": hostname,
             "user": user,
             "platform": system_platform,
-            "boot_time": boot_time_iso,
-            "uptime": uptime_seconds
+            "boot_time": boot_time,
+            "uptime": uptime
         }
 
         return [artifact]
