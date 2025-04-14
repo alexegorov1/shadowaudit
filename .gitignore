@@ -1,5 +1,45 @@
+# Python cache and compiled files
 __pycache__/
-*.pyc
+*.py[cod]
+*.so
+*.pyd
+
+# Virtual environments
 .env/
 .venv/
+env/
+venv/
+
+# Test and runtime output
 results/
+logs/
+coverage/
+*.log
+
+# Editor and IDE configs
+.vscode/
+.idea/
+*.swp
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+.eggs/
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# PyInstaller bundles
+*.spec
+
+# Schema cache or generated docs
+*.html
+*.pdf
+*.db
+
+# Temporary
+*.bak
+*.tmp
+*.orig
