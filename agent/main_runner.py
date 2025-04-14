@@ -8,61 +8,59 @@ from core.plugin_loader import discover_collectors
 
 
 def run_collection_phase(config: dict = None) -> list[dict]:
-    config_loader = ConfigLoader()
-    full_config = config or config_loader.full
-    general_config = full_config.get("general", {})
+    config = config or ConfigLoader().full
+    general = config.get("general", {})
+    output_dir = general.get("output_path", "./results")
 
-    output_dir = general_config.get("output_path", "./results")
     os.makedirs(output_dir, exist_ok=True)
-
-    logger = LoggerFactory(general_config).create_logger("shadowaudit.agent")
+    logger = LoggerFactory(general).create_logger("shadowaudit.agent")
     validator = ArtifactSchemaValidator()
 
     collectors = discover_collectors()
     logger.info(f"Discovered {len(collectors)} collector(s).")
 
-    all_valid_artifacts = []
-    total_valid, total_invalid = 0, 0
+    all_valid = []
+    total_valid = total_invalid = 0
 
     for collector in collectors:
         name = collector.get_name()
-        logger.info(f"Executing collector: {name}")
+        logger.info(f"[{name}] Starting...")
 
         try:
-            raw_artifacts = collector.collect()
-        except Exception as error:
-            logger.error(f"[{name}] Collector execution failed: {error}")
+            artifacts = collector.collect()
+        except Exception as err:
+            logger.error(f"[{name}] Execution failed: {err}")
             continue
 
-        if not isinstance(raw_artifacts, list):
-            logger.error(f"[{name}] Collector returned non-list output: {type(raw_artifacts).__name__}")
+        if not isinstance(artifacts, list):
+            logger.error(f"[{name}] Returned non-list output: {type(artifacts).__name__}")
             continue
 
         valid_count = 0
 
-        for index, artifact in enumerate(raw_artifacts, 1):
+        for idx, artifact in enumerate(artifacts, 1):
             try:
                 validator.validate_artifact(artifact)
-                all_valid_artifacts.append(artifact)
+                all_valid.append(artifact)
                 valid_count += 1
-            except ValueError as validation_error:
+            except ValueError as ve:
                 total_invalid += 1
-                logger.warning(f"[{name}][#{index}] Validation failed: {validation_error}")
+                logger.warning(f"[{name}][#{idx}] Validation failed: {ve}")
 
         total_valid += valid_count
-        logger.info(f"[{name}] {len(raw_artifacts)} total, {valid_count} valid.")
+        logger.info(f"[{name}] {len(artifacts)} collected, {valid_count} valid.")
 
-    logger.info(f"Collection finished: {total_valid} valid, {total_invalid} invalid.")
+    logger.info(f"Collection summary — Valid: {total_valid}, Invalid: {total_invalid}")
 
-    if all_valid_artifacts:
+    if all_valid:
         filename = f"artifacts_{datetime.utcnow().strftime('%Y%m%d_%H%M%S')}.json"
-        output_path = os.path.join(output_dir, filename)
+        path = os.path.join(output_dir, filename)
 
         try:
-            with open(output_path, "w", encoding="utf-8") as f:
-                json.dump(all_valid_artifacts, f, indent=2, ensure_ascii=False)
-            logger.info(f"Artifacts saved: {output_path}")
+            with open(path, "w", encoding="utf-8") as f:
+                json.dump(all_valid, f, indent=2, ensure_ascii=False)
+            logger.info(f"Saved {len(all_valid)} artifact(s) to: {path}")
         except Exception as e:
-            logger.error(f"Failed to write output file '{output_path}': {e}")
+            logger.error(f"Failed to write file '{path}': {e}")
 
-    return all_valid_artifacts
+    return all_valid
