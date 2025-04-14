@@ -13,19 +13,21 @@ class BasicInfoCollector(BaseCollector):
         return "basic_info"
 
     def collect(self) -> list[dict]:
+        now_utc = get_current_utc_timestamp()
         hostname = get_hostname()
         user = get_current_user()
-        system_platform = get_system_platform()
-        now_utc = get_current_utc_timestamp()
+        platform_name = get_system_platform()
         collected_at = now_utc.isoformat()
+
+        boot_time_iso = "unknown"
+        uptime_seconds = -1
 
         try:
             boot_ts = psutil.boot_time()
-            uptime = int(now_utc.timestamp() - boot_ts)
-            boot_time = datetime.fromtimestamp(boot_ts, tz=timezone.utc).isoformat()
+            uptime_seconds = int(now_utc.timestamp() - boot_ts)
+            boot_time_iso = datetime.fromtimestamp(boot_ts, tz=timezone.utc).isoformat()
         except Exception:
-            uptime = -1
-            boot_time = "unknown"
+            pass
 
         artifact = {
             "host_id": hostname,
@@ -36,9 +38,9 @@ class BasicInfoCollector(BaseCollector):
             "evidence_type": "environmental",
             "hostname": hostname,
             "user": user,
-            "platform": system_platform,
-            "boot_time": boot_time,
-            "uptime": uptime
+            "platform": platform_name,
+            "boot_time": boot_time_iso,
+            "uptime": uptime_seconds
         }
 
         return [artifact]
