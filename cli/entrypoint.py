@@ -1,7 +1,15 @@
 import argparse
 import sys
+import importlib
 from core.config_loader import ConfigLoader
 from core.logger import LoggerFactory
+
+
+_PHASES = {
+    "collect": ("agent.main_runner", "run_collection_phase"),
+    "analyze": ("analyzer.orchestrator", "run_analysis_phase"),
+    "report": ("reporter.orchestrator", "run_report_phase"),
+}
 
 
 def _load_config(path: str) -> dict:
@@ -12,22 +20,17 @@ def _load_config(path: str) -> dict:
         sys.exit(1)
 
 
-def _phase_dispatcher() -> dict:
-    return {
-        "collect": lambda config: __import__("agent.main_runner").agent.main_runner.run_collection_phase(config),
-        "analyze": lambda config: __import__("analyzer.orchestrator").analyzer.orchestrator.run_analysis_phase(config),
-        "report": lambda config: __import__("reporter.orchestrator").reporter.orchestrator.run_report_phase(config),
-    }
-
-
-def _run_phase(phase: str, config: dict) -> None:
-    dispatch = _phase_dispatcher()
-    if phase not in dispatch:
-        raise ValueError(f"[FATAL] Unsupported command: '{phase}'")
+def _import_phase_handler(phase: str):
+    if phase not in _PHASES:
+        print(f"[FATAL] Unknown command: '{phase}'")
+        sys.exit(2)
+    module_name, function_name = _PHASES[phase]
     try:
-        dispatch[phase](config)
+        module = importlib.import_module(module_name)
+        return getattr(module, function_name)
     except Exception as e:
-        raise RuntimeError(f"[{phase.upper()}] Phase execution failed: {e}")
+        print(f"[FATAL] Failed to load handler for '{phase}': {e}")
+        sys.exit(3)
 
 
 def run_cli() -> None:
@@ -43,19 +46,19 @@ def run_cli() -> None:
     )
 
     subparsers = parser.add_subparsers(dest="command", required=True)
-    for name in _phase_dispatcher().keys():
-        subparsers.add_parser(name, help=f"Run '{name}' phase")
+    for phase in _PHASES:
+        subparsers.add_parser(phase, help=f"Run the '{phase}' phase")
 
     args = parser.parse_args()
+    handler = _import_phase_handler(args.command)
     config = _load_config(args.config)
-
     logger = LoggerFactory(config.get("general", {})).create_logger("shadowaudit.cli")
-    logger.info(f"[INIT] ShadowAudit CLI started — phase: {args.command}")
 
+    logger.info(f"[INIT] Starting phase: {args.command}")
     try:
-        _run_phase(args.command, config)
+        handler(config)
     except Exception as e:
-        logger.error(str(e))
+        logger.error(f"[{args.command.upper()}] Execution failed: {e}")
         sys.exit(1)
 
-    logger.info(f"[DONE] Phase completed: {args.command}")
+    logger.info(f"[DONE] Phase '{args.command}' completed successfully")
