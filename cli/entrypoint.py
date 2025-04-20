@@ -3,38 +3,40 @@ import sys
 from core.config_loader import ConfigLoader
 from core.logger import LoggerFactory
 
-def _load_config(path: str = "config.yaml"):
+
+def _load_config(path: str) -> dict:
     try:
         return ConfigLoader(path).full
     except Exception as e:
-        print(f"[FATAL] Cannot load config: {e}")
+        print(f"[FATAL] Failed to load config from '{path}': {e}")
         sys.exit(1)
 
-def _run_collect(config: dict):
-    from agent.main_runner import run_collection_phase
-    try:
-        run_collection_phase(config)
-    except Exception as e:
-        raise RuntimeError(f"Collection phase failed: {e}")
 
-def _run_analyze(config: dict):
-    from analyzer.orchestrator import run_analysis_phase
+def _run_phase(phase: str, config: dict) -> None:
     try:
-        run_analysis_phase(config)
-    except Exception as e:
-        raise RuntimeError(f"Analysis phase failed: {e}")
+        if phase == "collect":
+            from agent.main_runner import run_collection_phase
+            run_collection_phase(config)
 
-def _run_report(config: dict):
-    from reporter.orchestrator import run_report_phase
-    try:
-        run_report_phase(config)
-    except Exception as e:
-        raise RuntimeError(f"Report generation failed: {e}")
+        elif phase == "analyze":
+            from analyzer.orchestrator import run_analysis_phase
+            run_analysis_phase(config)
 
-def run_cli():
+        elif phase == "report":
+            from reporter.orchestrator import run_report_phase
+            run_report_phase(config)
+
+        else:
+            raise ValueError(f"Unsupported command: {phase}")
+
+    except Exception as e:
+        raise RuntimeError(f"[{phase.upper()}] Phase failed: {e}")
+
+
+def run_cli() -> None:
     parser = argparse.ArgumentParser(
         prog="shadowaudit",
-        description="ShadowAudit - Forensic Artifact Framework"
+        description="ShadowAudit — Automated forensic artifact processing"
     )
     parser.add_argument(
         "--config",
@@ -45,29 +47,19 @@ def run_cli():
 
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    subparsers.add_parser("collect", help="Run collection phase")
-    subparsers.add_parser("analyze", help="Run analysis phase")
-    subparsers.add_parser("report", help="Run report generation")
+    for name in ("collect", "analyze", "report"):
+        subparsers.add_parser(name, help=f"Run {name} phase")
 
     args = parser.parse_args()
     config = _load_config(args.config)
+
     logger = LoggerFactory(config.get("general", {})).create_logger("shadowaudit.cli")
+    logger.info(f"Starting ShadowAudit CLI — phase: {args.command}")
 
     try:
-        if args.command == "collect":
-            logger.info("Launching collection phase")
-            _run_collect(config)
-
-        elif args.command == "analyze":
-            logger.info("Launching analysis phase")
-            _run_analyze(config)
-
-        elif args.command == "report":
-            logger.info("Launching report phase")
-            _run_report(config)
-
+        _run_phase(args.command, config)
     except Exception as e:
         logger.error(str(e))
         sys.exit(1)
 
-    logger.info(f"ShadowAudit CLI execution completed: {args.command}")
+    logger.info(f"Completed: {args.command} phase")
