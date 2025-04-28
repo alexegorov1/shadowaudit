@@ -5,24 +5,25 @@ import time
 from datetime import datetime, timezone
 import psutil
 
-def collect_basic_metadata():
+def collect_basic_metadata() -> dict:
     hostname = socket.gethostname()
-    system_platform = platform.system()
+    platform_name = platform.system()
     user = getpass.getuser()
-    boot_timestamp = psutil.boot_time()
-    uptime_seconds = int(time.time() - boot_timestamp)
-    boot_time_iso = datetime.fromtimestamp(boot_timestamp, tz=timezone.utc).isoformat()
+    boot_ts = psutil.boot_time()
+    now_utc = datetime.utcnow().replace(tzinfo=timezone.utc)
+    uptime = int(time.time() - boot_ts)
+    boot_time = datetime.fromtimestamp(boot_ts, tz=timezone.utc).isoformat()
 
     return {
         "host_id": hostname,
         "source": "system_metadata",
-        "collected_at": datetime.utcnow().replace(tzinfo=timezone.utc).isoformat(),
+        "collected_at": now_utc.isoformat(),
         "artifact_type": "basic_system_info",
         "confidence": 1.0,
         "evidence_type": "environmental",
         "hostname": hostname,
-        "platform": system_platform,
+        "platform": platform_name,
         "user": user,
-        "uptime": uptime_seconds,
-        "boot_time": boot_time_iso
+        "uptime": uptime,
+        "boot_time": boot_time
     }
