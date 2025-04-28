@@ -1,17 +1,16 @@
 import socket
 import platform
 import getpass
-import time
 from datetime import datetime, timezone
 import psutil
 
 def collect_basic_metadata() -> dict:
-    now = datetime.utcnow().replace(tzinfo=timezone.utc)
+    now = datetime.now(timezone.utc)
     hostname = socket.gethostname()
     user = getpass.getuser()
     system = platform.system()
-    boot_time = psutil.boot_time()
-    uptime = int(now.timestamp() - boot_time)
+    boot_time = datetime.fromtimestamp(psutil.boot_time(), tz=timezone.utc)
+    uptime = int((now - boot_time).total_seconds())
 
     return {
         "host_id": hostname,
@@ -24,5 +23,5 @@ def collect_basic_metadata() -> dict:
         "platform": system,
         "user": user,
         "uptime": uptime,
-        "boot_time": datetime.fromtimestamp(boot_time, tz=timezone.utc).isoformat()
+        "boot_time": boot_time.isoformat()
     }
