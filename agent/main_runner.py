@@ -8,10 +8,11 @@ from core.plugin_loader import discover_collectors
 
 def run_collection_phase(config: dict = None) -> list[dict]:
     config = config or ConfigLoader().full
-    output_dir = config.get("general", {}).get("output_path", "./results")
+    general = config.get("general", {})
+    output_dir = general.get("output_path", "./results")
     os.makedirs(output_dir, exist_ok=True)
 
-    logger = LoggerFactory(config.get("general", {})).create_logger("shadowaudit.agent")
+    logger = LoggerFactory(general).create_logger("shadowaudit.agent")
     validator = ArtifactSchemaValidator()
     collectors = discover_collectors()
 
@@ -32,27 +33,29 @@ def run_collection_phase(config: dict = None) -> list[dict]:
             logger.error(f"[{name}] Invalid output type: {type(artifacts).__name__}")
             continue
 
+        valid_count = 0
         for idx, artifact in enumerate(artifacts, 1):
             try:
                 validator.validate_artifact(artifact)
                 valid_artifacts.append(artifact)
-                total_valid += 1
+                valid_count += 1
             except ValueError as e:
                 total_invalid += 1
                 logger.warning(f"[{name}][#{idx}] Invalid: {e}")
-
-        logger.info(f"[{name}] {len(artifacts)} total, {total_valid} valid")
+        total_valid += valid_count
+        logger.info(f"[{name}] {len(artifacts)} total, {valid_count} valid")
 
     logger.info(f"Summary — Valid: {total_valid}, Invalid: {total_invalid}")
 
     if valid_artifacts:
-        filename = f"artifacts_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
-        path = os.path.join(output_dir, filename)
+        ts = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        output_path = os.path.join(output_dir, f"artifacts_{ts}.json")
         try:
-            with open(path, "w", encoding="utf-8") as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 json.dump(valid_artifacts, f, indent=2, ensure_ascii=False)
-            logger.info(f"Saved: {path}")
+            logger.info(f"Saved: {output_path}")
         except Exception as e:
             logger.error(f"Write error: {e}")
 
     return valid_artifacts
+
