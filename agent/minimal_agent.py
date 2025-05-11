@@ -22,6 +22,3 @@ def collect_basic_metadata() -> dict:
         "hostname": hostname,
         "platform": system,
         "user": user,
-        "uptime": uptime,
-        "boot_time": boot_time.isoformat()
-    }
