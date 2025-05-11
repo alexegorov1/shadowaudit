@@ -13,7 +13,3 @@ def main():
         exc_type = type(exc).__name__
         print(f"\n[FATAL] {exc_type}: {exc}")
         traceback.print_exc(limit=5, chain=False)
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
