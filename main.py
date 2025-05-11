@@ -1,7 +1,6 @@
 import sys
 import traceback
 from cli.entrypoint import run_cli
-
 def main():
     try:
         run_cli()
