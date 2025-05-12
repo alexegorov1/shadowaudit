@@ -23,3 +23,12 @@ class TimestampParser:
         except (ValueError, OverflowError) as e:
             self.logger.warning(f"Failed to parse timestamp: {raw} ({e})")
             return None
+
+    def normalize_artifact_timestamp(self, artifact: dict, field: str = "collected_at") -> dict:
+        original = artifact.get(field)
+        normalized = self.parse_timestamp(original)
+        if normalized:
+            artifact[field] = normalized
+        else:
+            self.logger.warning(f"[{artifact.get('artifact_type', 'unknown')}] Invalid timestamp in field '{field}': {original}")
+        return artifact
