@@ -30,23 +30,6 @@ class BaseParser(ABC):
             self.logger.warning(f"[{self._name}] should_parse() error: {e}")
             return False
 
-    def process_all(self, artifacts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        output: List[Dict[str, Any]] = []
-        for idx, artifact in enumerate(artifacts):
-            if not self.should_parse(artifact):
-                continue
-            try:
-                result = self.parse(artifact)
-                if isinstance(result, dict):
-                    output.append(result)
-                else:
-                    self.logger.warning(f"[{self._name}][#{idx}] parse() returned non-dict")
-            except Exception as e:
-                self.logger.warning(f"[{self._name}][#{idx}] parse() failed: {e}")
-        return output
-
-    @property
-    def logger(self) -> logging.Logger:
         if self._logger is None:
             self._logger = logging.getLogger(f"shadowaudit.parser.{self._name}")
         return self._logger
