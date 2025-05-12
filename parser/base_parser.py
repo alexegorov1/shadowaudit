@@ -22,14 +22,3 @@ class BaseParser(ABC):
     def parse(self, raw_artifact: Dict[str, Any]) -> Dict[str, Any]:
         pass
 
-    def should_parse(self, artifact: Dict[str, Any]) -> bool:
-        try:
-            artifact_type = artifact.get("artifact_type", "").strip().lower()
-            return "*" in self._supported or artifact_type in self._supported
-        except Exception as e:
-            self.logger.warning(f"[{self._name}] should_parse() error: {e}")
-            return False
-
-        if self._logger is None:
-            self._logger = logging.getLogger(f"shadowaudit.parser.{self._name}")
-        return self._logger
