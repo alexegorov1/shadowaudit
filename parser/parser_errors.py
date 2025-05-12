@@ -99,3 +99,17 @@ class UnexpectedValueError(ParserError):
             actual_value=actual_value,
             severity=Severity.MEDIUM
         )
+
+
+class ParseCrashError(ParserError):
+    def __init__(
+        self, parser_name: str, artifact_index: int, artifact_id: str, exception: Exception
+    ):
+        super().__init__(
+            parser_name=parser_name,
+            artifact_index=artifact_index,
+            artifact_id=artifact_id,
+            error_type="Exception",
+            message=str(exception),
+            severity=Severity.FATAL
+        )
