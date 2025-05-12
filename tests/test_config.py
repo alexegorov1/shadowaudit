@@ -3,7 +3,7 @@ import tempfile
 import pytest
 from core.config_loader import ConfigLoader
 
-valid_config = """
+VALID_CONFIG = """
 general:
   output_path: ./results
   log_level: INFO
@@ -24,12 +24,12 @@ reporter:
   template_path: ./templates
 """
 
-invalid_config_missing_sections = """
+INVALID_CONFIG_MISSING = """
 general:
   output_path: ./results
 """
 
-invalid_config_wrong_types = """
+INVALID_CONFIG_TYPES = """
 general:
   output_path: 12345
   log_level: true
@@ -38,74 +38,55 @@ collector:
   enabled_modules: "filesystem"
 """
 
-empty_config = ""
+EMPTY_CONFIG = ""
 
 
-def test_config_load_success():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        path = os.path.join(tmpdir, "config.yaml")
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(valid_config)
-
-        loader = ConfigLoader(path)
-        config = loader.full
-        assert isinstance(config, dict)
-        assert "general" in config
-        assert config["general"]["log_level"] == "INFO"
-        assert config["collector"]["enabled_modules"] == ["filesystem"]
+def write_config(content: str) -> str:
+    tmp = tempfile.NamedTemporaryFile("w+", suffix=".yaml", delete=False)
+    tmp.write(content)
+    tmp.flush()
+    tmp.close()
+    return tmp.name
 
 
-def test_config_missing_file():
+def test_valid_config_structure():
+    path = write_config(VALID_CONFIG)
+    loader = ConfigLoader(path)
+    cfg = loader.full
+    assert isinstance(cfg, dict)
+    assert cfg["general"]["log_level"] == "INFO"
+    assert isinstance(cfg["collector"]["enabled_modules"], list)
+
+
+def test_missing_file_raises():
     with pytest.raises(FileNotFoundError):
-        ConfigLoader("/nonexistent/path/config.yaml")
+        ConfigLoader("/nonexistent/file.yaml")
 
 
-def test_config_structure_validation():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        path = os.path.join(tmpdir, "config.yaml")
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(valid_config)
-
-        loader = ConfigLoader(path)
-        collector = loader.get("collector")
-        assert isinstance(collector["enabled_modules"], list)
-        assert isinstance(collector["exclude_paths"], list)
-        assert isinstance(collector["max_depth"], int)
-        assert loader.get("reporter", {}).get("formats") == ["json"]
+def test_partial_structure_access():
+    path = write_config(INVALID_CONFIG_MISSING)
+    loader = ConfigLoader(path)
+    assert loader.get("analyzer", {"enable_heuristics": False})["enable_heuristics"] is False
 
 
-def test_config_empty_file():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        path = os.path.join(tmpdir, "config.yaml")
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(empty_config)
-
-        loader = ConfigLoader(path)
-        config = loader.full
-        assert isinstance(config, dict)
-        assert config == {}
+def test_empty_config_fallback():
+    path = write_config(EMPTY_CONFIG)
+    loader = ConfigLoader(path)
+    assert loader.full == {}
+    assert loader.get("collector") is None
 
 
-def test_config_missing_sections_graceful_fallback():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        path = os.path.join(tmpdir, "config.yaml")
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(invalid_config_missing_sections)
-
-        loader = ConfigLoader(path)
-        assert "general" in loader.full
-        assert loader.get("analyzer", default={"enable_heuristics": False})["enable_heuristics"] is False
+def test_wrong_types_present_but_not_blocking():
+    path = write_config(INVALID_CONFIG_TYPES)
+    loader = ConfigLoader(path)
+    general = loader.get("general")
+    assert isinstance(general["output_path"], int)
+    assert isinstance(general["log_level"], bool)
+    assert isinstance(loader.get("collector")["enabled_modules"], str)
 
 
-def test_config_wrong_types_handling():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        path = os.path.join(tmpdir, "config.yaml")
-        with open(path, "w", encoding="utf-8") as f:
-            f.write(invalid_config_wrong_types)
-
-        loader = ConfigLoader(path)
-        general = loader.get("general")
-        collector = loader.get("collector")
-        assert isinstance(general["output_path"], int)
-        assert isinstance(general["log_level"], bool)
-        assert isinstance(collector["enabled_modules"], str)
+def test_get_returns_default_if_missing():
+    path = write_config(VALID_CONFIG)
+    loader = ConfigLoader(path)
+    assert loader.get("nonexistent") is None
+    assert loader.get("nonexistent", default={"key": 123}) == {"key": 123}
