@@ -1,4 +1,6 @@
 import sys
+import traceback
+from cli.entrypoint import run_cli
 from core.logger import LoggerFactory
 from core.config_loader import ConfigLoader
 
@@ -12,6 +14,9 @@ def main():
 
     try:
         run_cli()
+    except KeyboardInterrupt:
+        logger.warning("Execution interrupted by user (KeyboardInterrupt).")
+        sys.exit(130)
     except SystemExit:
         raise
     except Exception as exc:
