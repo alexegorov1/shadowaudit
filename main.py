@@ -13,12 +13,3 @@ def main():
         sys.exit(130)
     except SystemExit:
         raise
-    except Exception as exc:
-        exc_type = type(exc).__name__
-        logger.log(f"Fatal exception occurred: {exc_type}: {exc}", level="critical")
-        tb = traceback.format_exc(limit=5, chain=False)
-        logger.log(tb, level="debug")
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
