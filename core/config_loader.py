@@ -35,3 +35,10 @@ class ConfigLoader:
     @property
     def full(self):
         return self._config
+
+    @property
+    def path(self):
+        return self._path
+    @property
+    def full(self):
+        return self._config
