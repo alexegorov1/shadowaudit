@@ -1,5 +1,4 @@
 from typing import List, Dict, Any, Set
-from parser.base_parser import BaseParser
 
 class CompositeParser(BaseParser):
     def __init__(self, name: str = "composite_parser"):
