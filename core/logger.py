@@ -1,5 +1,6 @@
 import logging
 import sys
+import os
 from datetime import datetime
 
 class LoggerFactory:
@@ -13,19 +14,28 @@ class LoggerFactory:
         logger.setLevel(self._log_level)
         logger.propagate = False
 
-        if not logger.handlers:
-            formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s")
+        if logger.handlers:
+            return logger
 
-            if not self._suppress_stdout:
-                console_handler = logging.StreamHandler(sys.stdout)
-                console_handler.setFormatter(formatter)
-                logger.addHandler(console_handler)
+        formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s")
 
-            if self._output_path:
+        if not self._suppress_stdout:
+            console_handler = logging.StreamHandler(sys.stdout)
+            console_handler.setFormatter(formatter)
+            logger.addHandler(console_handler)
+
+        if self._output_path:
+            try:
+                os.makedirs(self._output_path, exist_ok=True)
                 timestamp = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
                 file_name = f"{self._output_path}/shadowaudit_{timestamp}.log"
                 file_handler = logging.FileHandler(file_name, encoding="utf-8")
                 file_handler.setFormatter(formatter)
                 logger.addHandler(file_handler)
+            except Exception as e:
+                fallback_handler = logging.StreamHandler(sys.stderr)
+                fallback_handler.setFormatter(formatter)
+                logger.addHandler(fallback_handler)
+                logger.error(f"[LOGGER INIT ERROR] Failed to initialize file logger: {e}")
 
         return logger
