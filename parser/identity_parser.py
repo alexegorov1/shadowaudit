@@ -26,10 +26,6 @@ class IdentityParser(BaseParser):
         artifact["normalized_by"] = self._name
         return artifact
 
-    def _check_required_fields(self, artifact: Dict[str, Any]) -> set[str]:
-        required = {"host_id", "source", "collected_at", "artifact_type", "confidence", "evidence_type"}
-        return required - artifact.keys()
-
     def _debug_artifact_id(self, artifact: Dict[str, Any]) -> str:
         rid = artifact.get("file_path") or artifact.get("artifact_type") or "unknown"
         return f"host={artifact.get('host_id', '?')} type={artifact.get('artifact_type', '?')} id={rid}"
