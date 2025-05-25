@@ -2,15 +2,24 @@ import os
 import yaml
 
 class ConfigLoader:
-    _instances = {}
+    _singleton_instance = None
+    _singleton_path = None
 
     def __new__(cls, path="config.yaml"):
         abs_path = os.path.abspath(path)
-        if abs_path not in cls._instances:
-            obj = super().__new__(cls)
-            obj._load(abs_path)
-            cls._instances[abs_path] = obj
-        return cls._instances[abs_path]
+
+        if cls._singleton_instance is None:
+            instance = super().__new__(cls)
+            instance._load(abs_path)
+            cls._singleton_instance = instance
+            cls._singleton_path = abs_path
+        elif abs_path != cls._singleton_path:
+            raise RuntimeError(
+                f"ConfigLoader was already initialized with a different path: '{cls._singleton_path}'. "
+                f"Refusing to load another config from: '{abs_path}'"
+            )
+
+        return cls._singleton_instance
 
     def _load(self, path):
         with open(path, "r", encoding="utf-8") as f:
