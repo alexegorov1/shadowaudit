@@ -29,12 +29,3 @@ class LoggerFactory:
                 logger.addHandler(file_handler)
 
         return logger
-
-    def _get_level(self, level_name):
-        levels = {
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR
-        }
-        return levels.get(level_name.upper(), logging.INFO)
