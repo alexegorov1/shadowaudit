@@ -22,11 +22,3 @@ class ConfigLoader:
 
     def get(self, section, default=None):
         return self._config.get(section, default)
-
-    @property
-    def full(self):
-        return self._config
-
-    @property
-    def path(self):
-        return self._path
