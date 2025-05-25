@@ -8,6 +8,11 @@ class IdentityParser(BaseParser):
     def supported_types(self) -> List[str]:
         return ["*"]
 
+    def parse(self, raw_artifact: Dict[str, Any]) -> Dict[str, Any]:
+        if not isinstance(raw_artifact, dict):
+            self.logger.warning(f"[{self._name}] Skipped non-dict artifact: {type(raw_artifact).__name__}")
+            return {}
+
         artifact = raw_artifact.copy()
         host_id = artifact.get("host_id", "unknown_host")
 
