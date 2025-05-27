@@ -21,11 +21,6 @@
           "minimum": 0,
           "description": "Size of the file in bytes"
         },
-        "sha256": {
-          "type": "string",
-          "pattern": "^[a-fA-F0-9]{64}$",
-          "description": "SHA-256 hash of the file"
-        },
         "is_pe": {
           "type": "boolean",
           "description": "Indicates whether the file is a PE executable (Windows only)"
