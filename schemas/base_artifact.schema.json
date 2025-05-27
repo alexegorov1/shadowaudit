@@ -15,78 +15,29 @@
   "properties": {
     "host_id": {
       "type": "string",
-      "minLength": 1,
-      "description": "Unique identifier of the host where the artifact was collected"
+      "minLength": 1
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
     },
     "collected_at": {
       "type": "string",
-      "format": "date-time",
-      "description": "UTC timestamp in ISO 8601 format when the artifact was collected"
+      "format": "date-time"
     },
     "artifact_type": {
       "type": "string",
-      "minLength": 1,
-      "description": "Logical classification of the artifact (e.g., file_scan, task_scheduled)"
+      "minLength": 1
     },
     "confidence": {
       "type": "number",
       "minimum": 0.0,
-      "maximum": 1.0,
-      "description": "Confidence score from 0.0 (low) to 1.0 (high)"
+      "maximum": 1.0
     },
     "evidence_type": {
       "type": "string",
-      "minLength": 1,
-      "description": "Type of forensic evidence (e.g., persistence, execution, anomaly)"
+      "minLength": 1
     }
   },
-  "additionalProperties": true,
-  "$defs": {
-    "filesystemArtifact": {
-      "type": "object",
-      "title": "Filesystem-Specific Fields",
-      "properties": {
-        "file_path": {
-          "type": "string",
-          "description": "Full absolute file path"
-        },
-        "size": {
-          "type": "integer",
-          "minimum": 0,
-          "description": "File size in bytes"
-        },
-        "is_pe": {
-          "type": "boolean",
-          "description": "True if file is a PE (Portable Executable)"
-        },
-        "is_signed": {
-          "type": "boolean",
-          "description": "True if file has a valid digital signature"
-        },
-        "created_time": {
-          "type": "string",
-          "format": "date-time",
-          "description": "File creation timestamp in ISO 8601 format"
-        }
-      }
-    },
-    "registryArtifact": {
-      "type": "object",
-      "title": "Registry-Specific Fields",
-      "properties": {
-        "registry_key": {
-          "type": "string",
-          "description": "Full registry key path"
-        },
-        "value_name": {
-          "type": "string",
-          "description": "Registry value name"
-        },
-        "value_type": {
-          "type": "string",
-          "description": "Registry value type (e.g., REG_SZ, REG_DWORD)"
-        }
-      }
-    }
-  }
+  "additionalProperties": false
 }
