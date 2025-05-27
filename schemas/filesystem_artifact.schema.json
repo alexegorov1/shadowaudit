@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://shadowaudit/schemas/filesystem_artifact.schema.json",
-  "title": "Filesystem Artifact",
+  "title": "Filesystem Artifact Schema",
   "description": "Extended schema for filesystem-based forensic artifacts, inherits base artifact structure.",
   "type": "object",
   "allOf": [
@@ -10,6 +10,14 @@
     },
     {
       "type": "object",
+      "required": [
+        "file_path",
+        "size",
+        "sha256",
+        "is_pe",
+        "is_signed",
+        "created_time"
+      ],
       "properties": {
         "file_path": {
           "type": "string",
@@ -19,30 +27,27 @@
         "size": {
           "type": "integer",
           "minimum": 0,
-          "description": "Size of the file in bytes"
+          "description": "File size in bytes"
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^[a-fA-F0-9]{64}$",
+          "description": "SHA-256 hash of file contents"
         },
         "is_pe": {
           "type": "boolean",
-          "description": "Indicates whether the file is a PE executable (Windows only)"
+          "description": "True if file is a PE (Portable Executable)"
         },
         "is_signed": {
           "type": "boolean",
-          "description": "Indicates whether the file has a valid digital signature"
+          "description": "True if file has a valid digital signature"
         },
         "created_time": {
           "type": "string",
           "format": "date-time",
-          "description": "File creation timestamp in ISO 8601 UTC format"
+          "description": "File creation timestamp in ISO 8601 format"
         }
       },
-      "required": [
-        "file_path",
-        "size",
-        "sha256",
-        "is_pe",
-        "is_signed",
-        "created_time"
-      ],
       "additionalProperties": false
     }
   ]
