@@ -60,11 +60,6 @@
           "minimum": 0,
           "description": "File size in bytes"
         },
-        "sha256": {
-          "type": "string",
-          "pattern": "^[a-fA-F0-9]{64}$",
-          "description": "SHA-256 hash of file contents"
-        },
         "is_pe": {
           "type": "boolean",
           "description": "True if file is a PE (Portable Executable)"
@@ -91,10 +86,6 @@
         "value_name": {
           "type": "string",
           "description": "Registry value name"
-        },
-        "value_data": {
-          "type": "string",
-          "description": "Actual data stored in the registry value"
         },
         "value_type": {
           "type": "string",
