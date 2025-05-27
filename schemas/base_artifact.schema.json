@@ -18,11 +18,6 @@
       "minLength": 1,
       "description": "Unique identifier of the host where the artifact was collected"
     },
-    "source": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Subsystem or module name that generated the artifact (e.g., filesystem, registry)"
-    },
     "collected_at": {
       "type": "string",
       "format": "date-time",
