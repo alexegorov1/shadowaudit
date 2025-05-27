@@ -1,6 +1,5 @@
 import os
 import json
-from jsonschema import validate, ValidationError, SchemaError
 from jsonschema.validators import validator_for
 
 class ArtifactSchemaValidator:
