@@ -31,6 +31,13 @@ class ArtifactSchemaValidator:
         self._schemas[schema_id] = schema
         self._validators[schema_id] = ValidatorClass(schema)
 
+    def validate_artifact(self, artifact):
+        artifact_type = artifact.get("artifact_type")
+        if artifact_type in self._validators:
+            validator = self._validators[artifact_type]
+        else:
+            validator = self._validators["base"]
+
         try:
             validator.validate(artifact)
         except ValidationError as e:
