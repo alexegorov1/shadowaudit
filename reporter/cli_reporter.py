@@ -49,6 +49,14 @@ class CLIReporter(BaseReporter):
                 filtered = self._interactive_filter(filtered)
             self._render_table(filtered)
 
+    def _render_summary(self, summary: Dict[str, Any]) -> None:
+        text = Text()
+        timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
+        text.append(f"\n[SUMMARY @ {timestamp}]\n", style="bold underline")
+        for key, value in summary.items():
+            text.append(f"{key.replace('_', ' ').capitalize()}: {value}\n")
+        self.console.print(Panel(text, title="Artifact Summary", expand=False, border_style="cyan"))
+
     def _render_table(self, artifacts: List[Dict[str, Any]]) -> None:
         table = Table(title="Collected Artifacts", box=box.MINIMAL_DOUBLE_HEAD)
         table.add_column("Index", style="dim", width=6)
