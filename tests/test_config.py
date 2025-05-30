@@ -63,6 +63,12 @@ def test_missing_file_raises():
         ConfigLoader("/nonexistent/file.yaml")
 
 
+def test_partial_structure_access():
+    path = write_config(INVALID_CONFIG_MISSING)
+    loader = ConfigLoader(path)
+    assert loader.get("analyzer", {"enable_heuristics": False})["enable_heuristics"] is False
+
+
 def test_empty_config_fallback():
     path = write_config(EMPTY_CONFIG)
     loader = ConfigLoader(path)
