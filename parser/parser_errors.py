@@ -52,7 +52,6 @@ class ParserError:
     def __str__(self) -> str:
         return f"[{self.severity.upper()}] {self.parser_name}#{self.artifact_index}: {self.message}"
 
-
 class FieldMissingError(ParserError):
     def __init__(self, parser_name: str, artifact_index: int, artifact_id: str, field: str):
         super().__init__(
