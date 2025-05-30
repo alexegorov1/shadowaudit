@@ -84,23 +84,6 @@ class TypeMismatchError(ParserError):
         )
 
 
-class UnexpectedValueError(ParserError):
-    def __init__(
-        self, parser_name: str, artifact_index: int, artifact_id: str,
-        field: str, actual_value: Any
-    ):
-        super().__init__(
-            parser_name=parser_name,
-            artifact_index=artifact_index,
-            artifact_id=artifact_id,
-            error_type="UnexpectedValue",
-            message=f"Unexpected value in field '{field}': {repr(actual_value)}",
-            field=field,
-            actual_value=actual_value,
-            severity=Severity.MEDIUM
-        )
-
-
 class ParseCrashError(ParserError):
     def __init__(
         self, parser_name: str, artifact_index: int, artifact_id: str, exception: Exception
