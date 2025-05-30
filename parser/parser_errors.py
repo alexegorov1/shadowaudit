@@ -65,24 +65,6 @@ class FieldMissingError(ParserError):
         )
 
 
-class TypeMismatchError(ParserError):
-    def __init__(
-        self, parser_name: str, artifact_index: int, artifact_id: str,
-        field: str, expected_type: str, actual_value: Any
-    ):
-        super().__init__(
-            parser_name=parser_name,
-            artifact_index=artifact_index,
-            artifact_id=artifact_id,
-            error_type="TypeMismatch",
-            message=f"Expected type '{expected_type}' for field '{field}', got value: {repr(actual_value)}",
-            field=field,
-            expected_type=expected_type,
-            actual_value=actual_value,
-            severity=Severity.MEDIUM
-        )
-
-
 class ParseCrashError(ParserError):
     def __init__(
         self, parser_name: str, artifact_index: int, artifact_id: str, exception: Exception
