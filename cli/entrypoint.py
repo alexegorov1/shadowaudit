@@ -31,8 +31,6 @@ def run_cli() -> None:
     )
     parser.add_argument(
         "--config",
-        type=str,
-        default="config.yaml",
         help="Path to configuration file (default: config.yaml)"
     )
 
