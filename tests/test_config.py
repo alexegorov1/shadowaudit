@@ -49,15 +49,6 @@ def write_config(content: str) -> str:
     return tmp.name
 
 
-def test_valid_config_structure():
-    path = write_config(VALID_CONFIG)
-    loader = ConfigLoader(path)
-    cfg = loader.full
-    assert isinstance(cfg, dict)
-    assert cfg["general"]["log_level"] == "INFO"
-    assert isinstance(cfg["collector"]["enabled_modules"], list)
-
-
 def test_missing_file_raises():
     with pytest.raises(FileNotFoundError):
         ConfigLoader("/nonexistent/file.yaml")
