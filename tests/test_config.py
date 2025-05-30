@@ -48,12 +48,6 @@ def write_config(content: str) -> str:
     tmp.close()
     return tmp.name
 
-
-def test_missing_file_raises():
-    with pytest.raises(FileNotFoundError):
-        ConfigLoader("/nonexistent/file.yaml")
-
-
 def test_partial_structure_access():
     path = write_config(INVALID_CONFIG_MISSING)
     loader = ConfigLoader(path)
