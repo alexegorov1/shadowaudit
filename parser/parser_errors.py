@@ -18,10 +18,6 @@ class ParserError:
         artifact_id: str,
         error_type: str,
         message: str,
-        field: Optional[str] = None,
-        expected_type: Optional[str] = None,
-        actual_value: Optional[Any] = None,
-        severity: Severity = Severity.MEDIUM,
         timestamp: Optional[str] = None,
     ) -> None:
         self.parser_name = parser_name
