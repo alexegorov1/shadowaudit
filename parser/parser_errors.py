@@ -18,6 +18,10 @@ class ParserError:
         artifact_id: str,
         error_type: str,
         message: str,
+        field: Optional[str] = None,
+        expected_type: Optional[str] = None,
+        actual_value: Optional[Any] = None,
+        severity: Severity = Severity.MEDIUM,
         timestamp: Optional[str] = None,
     ) -> None:
         self.parser_name = parser_name
@@ -48,6 +52,7 @@ class ParserError:
     def __str__(self) -> str:
         return f"[{self.severity.upper()}] {self.parser_name}#{self.artifact_index}: {self.message}"
 
+
 class FieldMissingError(ParserError):
     def __init__(self, parser_name: str, artifact_index: int, artifact_id: str, field: str):
         super().__init__(
@@ -58,6 +63,41 @@ class FieldMissingError(ParserError):
             message=f"Required field '{field}' is missing",
             field=field,
             severity=Severity.HIGH
+        )
+
+
+class TypeMismatchError(ParserError):
+    def __init__(
+        self, parser_name: str, artifact_index: int, artifact_id: str,
+        field: str, expected_type: str, actual_value: Any
+    ):
+        super().__init__(
+            parser_name=parser_name,
+            artifact_index=artifact_index,
+            artifact_id=artifact_id,
+            error_type="TypeMismatch",
+            message=f"Expected type '{expected_type}' for field '{field}', got value: {repr(actual_value)}",
+            field=field,
+            expected_type=expected_type,
+            actual_value=actual_value,
+            severity=Severity.MEDIUM
+        )
+
+
+class UnexpectedValueError(ParserError):
+    def __init__(
+        self, parser_name: str, artifact_index: int, artifact_id: str,
+        field: str, actual_value: Any
+    ):
+        super().__init__(
+            parser_name=parser_name,
+            artifact_index=artifact_index,
+            artifact_id=artifact_id,
+            error_type="UnexpectedValue",
+            message=f"Unexpected value in field '{field}': {repr(actual_value)}",
+            field=field,
+            actual_value=actual_value,
+            severity=Severity.MEDIUM
         )
 
 
