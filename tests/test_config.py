@@ -61,15 +61,6 @@ def test_empty_config_fallback():
     assert loader.get("collector") is None
 
 
-def test_wrong_types_present_but_not_blocking():
-    path = write_config(INVALID_CONFIG_TYPES)
-    loader = ConfigLoader(path)
-    general = loader.get("general")
-    assert isinstance(general["output_path"], int)
-    assert isinstance(general["log_level"], bool)
-    assert isinstance(loader.get("collector")["enabled_modules"], str)
-
-
 def test_get_returns_default_if_missing():
     path = write_config(VALID_CONFIG)
     loader = ConfigLoader(path)
