@@ -11,15 +11,6 @@ _PHASES = {
     "report": ("reporter.orchestrator", "run_report_phase"),
 }
 
-
-def _load_config(path: str) -> dict:
-    try:
-        return ConfigLoader(path).full
-    except Exception as e:
-        print(f"[FATAL] Failed to load config from '{path}': {e}")
-        sys.exit(1)
-
-
 def _import_phase_handler(phase: str):
     if phase not in _PHASES:
         print(f"[FATAL] Unknown command: '{phase}'")
