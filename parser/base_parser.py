@@ -20,17 +20,6 @@ class BaseParser(ABC):
     def parse(self, raw_artifact: Dict[str, Any]) -> Dict[str, Any]:
         pass
 
-    def should_parse(self, artifact: Dict[str, Any]) -> bool:
-        try:
-            artifact_type = artifact.get("artifact_type")
-            if not isinstance(artifact_type, str):
-                return False
-            artifact_type = artifact_type.lower()
-            return "*" in self.supported_set or artifact_type in self.supported_set
-        except Exception as e:
-            self.logger.warning(f"[{self.get_name()}] should_parse() error: {e}")
-            return False
-
     def process_all(self, artifacts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         output: List[Dict[str, Any]] = []
         for idx, artifact in enumerate(artifacts):
