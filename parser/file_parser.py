@@ -31,12 +31,6 @@ class FileParser(BaseParser):
         if ext.lower() in PE_EXTENSIONS and not is_pe:
             tags.append("pe_mismatch")
 
-        if is_pe and size < MIN_PE_SIZE:
-            tags.append("tiny_pe")
-
-        if "AppData" in norm_path or "Temp" in norm_path or "ProgramData" in norm_path:
-            tags.append("user_space")
-
         if SHA256_RE.fullmatch(sha256) is None:
             tags.append("invalid_sha256")
 
