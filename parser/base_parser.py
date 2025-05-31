@@ -36,17 +36,6 @@ class BaseParser(ABC):
         return output
 
     @property
-    def supported_set(self) -> set[str]:
-        if self._supported_cache is None:
-            try:
-                types = self.supported_types()
-                self._supported_cache = set(t.lower() for t in types if isinstance(t, str))
-            except Exception as e:
-                self.logger.error(f"[{self.get_name()}] failed to initialize supported_types: {e}")
-                self._supported_cache = set()
-        return self._supported_cache
-
-    @property
     def logger(self) -> logging.Logger:
         if self._logger is None:
             self._logger = logging.getLogger(f"shadowaudit.parser.{self.get_name()}")
