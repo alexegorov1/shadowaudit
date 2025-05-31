@@ -1,64 +1,62 @@
-from abc import ABC, abstractmethod
+import os
+import re
+import copy
 from typing import List, Dict, Any
-import logging
+from parser.base_parser import BaseParser
 
+SUSPICIOUS_EXTENSIONS = {".scr", ".vbs", ".bat", ".ps1", ".pif", ".cmd"}
+PE_EXTENSIONS = {".exe", ".dll", ".sys", ".drv", ".cpl"}
+MIN_PE_SIZE = 4096
+SHA256_RE = re.compile(r"^[a-fA-F0-9]{64}$")
 
-class BaseParser(ABC):
-    def __init__(self) -> None:
-        self._logger: logging.Logger = None
-        self._supported_cache: set[str] = None
-
-    @abstractmethod
+class FileParser(BaseParser):
     def get_name(self) -> str:
-        pass
+        return "file_parser"
 
-    @abstractmethod
     def supported_types(self) -> List[str]:
-        pass
+        return ["file_scan"]
 
-    @abstractmethod
     def parse(self, raw_artifact: Dict[str, Any]) -> Dict[str, Any]:
-        pass
+        artifact = copy.deepcopy(raw_artifact)
+        tags = []
 
-    def should_parse(self, artifact: Dict[str, Any]) -> bool:
+        path = artifact.get("file_path", "")
+        sha256 = artifact.get("sha256", "")
+        size = artifact.get("size", 0)
+        is_pe = artifact.get("is_pe", False)
+        created = artifact.get("created_time", "")
+
+        norm_path = os.path.normpath(path)
+        artifact["file_path"] = norm_path
+        artifact["directory"], artifact["filename"] = os.path.split(norm_path)
+        _, ext = os.path.splitext(norm_path)
+        artifact["extension"] = ext.lower()
+
+        if ext.lower() in SUSPICIOUS_EXTENSIONS:
+            tags.append("suspicious_extension")
+
+        if ext.lower() in PE_EXTENSIONS and not is_pe:
+            tags.append("pe_mismatch")
+
+        if is_pe and size < MIN_PE_SIZE:
+            tags.append("tiny_pe")
+
+        if "AppData" in norm_path or "Temp" in norm_path or "ProgramData" in norm_path:
+            tags.append("user_space")
+
+        if SHA256_RE.fullmatch(sha256) is None:
+            tags.append("invalid_sha256")
+
         try:
-            artifact_type = artifact.get("artifact_type")
-            if not isinstance(artifact_type, str):
-                return False
-            artifact_type = artifact_type.lower()
-            return "*" in self.supported_set or artifact_type in self.supported_set
-        except Exception as e:
-            self.logger.warning(f"[{self.get_name()}] should_parse() error: {e}")
-            return False
+            ts = created[:19]
+            file_dt = datetime.fromisoformat(ts)
+            age = (datetime.utcnow() - file_dt).total_seconds()
+            if age < 180:
+                tags.append("recent")
+        except Exception:
+            self.logger.debug(f"[{self._name}] Invalid timestamp format: {created}")
 
-    def process_all(self, artifacts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        output: List[Dict[str, Any]] = []
-        for idx, artifact in enumerate(artifacts):
-            if not self.should_parse(artifact):
-                continue
-            try:
-                result = self.parse(artifact)
-                if isinstance(result, dict):
-                    output.append(result)
-                else:
-                    self.logger.warning(f"[{self.get_name()}][#{idx}] parse() returned non-dict")
-            except Exception as e:
-                self.logger.warning(f"[{self.get_name()}][#{idx}] parse() failed: {e}")
-        return output
+        if tags:
+            artifact["tags"] = tags
 
-    @property
-    def supported_set(self) -> set[str]:
-        if self._supported_cache is None:
-            try:
-                types = self.supported_types()
-                self._supported_cache = set(t.lower() for t in types if isinstance(t, str))
-            except Exception as e:
-                self.logger.error(f"[{self.get_name()}] failed to initialize supported_types: {e}")
-                self._supported_cache = set()
-        return self._supported_cache
-
-    @property
-    def logger(self) -> logging.Logger:
-        if self._logger is None:
-            self._logger = logging.getLogger(f"shadowaudit.parser.{self.get_name()}")
-        return self._logger
+        return artifact
