@@ -13,13 +13,6 @@ class FileParser(BaseParser):
     def get_name(self) -> str:
         return "file_parser"
 
-    def supported_types(self) -> List[str]:
-        return ["file_scan"]
-
-    def parse(self, raw_artifact: Dict[str, Any]) -> Dict[str, Any]:
-        artifact = copy.deepcopy(raw_artifact)
-        tags = []
-
         path = artifact.get("file_path", "")
         sha256 = artifact.get("sha256", "")
         size = artifact.get("size", 0)
