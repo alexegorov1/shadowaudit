@@ -44,8 +44,6 @@ class BaseReporter(ABC):
             if "analysis" in art:
                 summary["with_analysis"] += 1
                 severity = art["analysis"].get("severity", 0)
-                if severity >= 4:
-                    summary["high_severity"] += 1
                 if art["analysis"].get("matched_rules"):
                     summary["has_matched_rules"] += 1
                 if severity > summary["max_severity"]:
