@@ -22,9 +22,6 @@ class BaseReporter(ABC):
     def generate(self, artifacts: List[Dict[str, Any]]) -> None:
         pass
 
-    def get_logger(self) -> logging.Logger:
-        return logging.getLogger(f"shadowaudit.reporter.{self.get_name()}")
-
     def summarize(self, artifacts: List[Dict[str, Any]]) -> Dict[str, Union[int, float]]:
         summary = {
             "total": len(artifacts),
