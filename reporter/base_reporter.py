@@ -64,10 +64,6 @@ class BaseReporter(ABC):
         self.logger.info(f"{self.get_name()} wrote file: {full_path}")
         return full_path
 
-    def write_summary_file(self, artifacts: List[Dict[str, Any]]) -> str:
-        summary = self.summarize(artifacts)
-        return self.write_json_file(summary, filename_prefix=f"{self.filename_prefix}_summary")
-
     def filter_by_severity(self, artifacts: List[Dict[str, Any]], minimum: int = 4) -> List[Dict[str, Any]]:
         return [a for a in artifacts if a.get("analysis", {}).get("severity", 0) >= minimum]
 
