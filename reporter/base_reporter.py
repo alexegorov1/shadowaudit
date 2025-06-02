@@ -64,9 +64,6 @@ class BaseReporter(ABC):
         self.logger.info(f"{self.get_name()} wrote file: {full_path}")
         return full_path
 
-    def filter_by_severity(self, artifacts: List[Dict[str, Any]], minimum: int = 4) -> List[Dict[str, Any]]:
-        return [a for a in artifacts if a.get("analysis", {}).get("severity", 0) >= minimum]
-
     def group_by_type(self, artifacts: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
         groups = {}
         for art in artifacts:
