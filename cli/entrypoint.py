@@ -1,64 +1,54 @@
-import argparse
-import sys
-import importlib
-from core.config_loader import ConfigLoader
-from core.logger import LoggerFactory
+import psutil
+import time
+from datetime import datetime, timezone
+from core.interfaces import BaseCollector
+from core.utils import (
+    get_hostname,
+    get_current_user,
+    get_system_platform,
+    get_current_utc_timestamp
+)
 
+class BasicInfoCollector(BaseCollector):
+    def get_name(self) -> str:
+        return "basic_info"
 
-_PHASES = {
-    "collect": ("agent.main_runner", "run_collection_phase"),
-    "analyze": ("analyzer.orchestrator", "run_analysis_phase"),
-    "report": ("reporter.orchestrator", "run_report_phase"),
-}
+    def collect(self) -> list[dict]:
+        try:
+            now_utc = get_current_utc_timestamp()
+            if not isinstance(now_utc, datetime):
+                raise TypeError("get_current_utc_timestamp() must return datetime")
+            collected_at = now_utc.isoformat()
+        except Exception as e:
+            raise RuntimeError(f"Failed to obtain current UTC timestamp: {e}")
 
+        hostname = get_hostname() or "unknown_host"
+        user = get_current_user() or "unknown_user"
+        platform_name = get_system_platform() or "unknown_platform"
 
-def _load_config(path: str) -> dict:
-    try:
-        return ConfigLoader(path).full
-    except Exception as e:
-        print(f"[FATAL] Failed to load config from '{path}': {e}")
-        sys.exit(1)
+        boot_time_iso = "unknown"
+        uptime_seconds = -1
 
+        try:
+            boot_ts = psutil.boot_time()
+            uptime_seconds = int(time.time() - boot_ts)
+            boot_time = datetime.fromtimestamp(boot_ts, tz=timezone.utc)
+            boot_time_iso = boot_time.isoformat()
+        except Exception:
+            pass
 
-def _import_phase_handler(phase: str):
-    if phase not in _PHASES:
-        print(f"[FATAL] Unknown command: '{phase}'")
-        sys.exit(2)
-    module_name, function_name = _PHASES[phase]
-    try:
-        module = importlib.import_module(module_name)
-        return getattr(module, function_name)
-    except Exception as e:
-        print(f"[FATAL] Failed to load handler for '{phase}': {e}")
-        sys.exit(3)
+        artifact = {
+            "host_id": hostname,
+            "source": "basic_info",
+            "collected_at": collected_at,
+            "artifact_type": "system_metadata",
+            "confidence": 1.0,
+            "evidence_type": "environmental",
+            "hostname": hostname,
+            "user": user,
+            "platform": platform_name,
+            "boot_time": boot_time_iso,
+            "uptime": uptime_seconds
+        }
 
-
-def run_cli() -> None:
-    parser = argparse.ArgumentParser(
-        prog="shadowaudit",
-        description="ShadowAudit — Forensic Artifact Framework"
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="config.yaml",
-        help="Path to configuration file (default: config.yaml)"
-    )
-
-    subparsers = parser.add_subparsers(dest="command", required=True)
-    for phase in _PHASES:
-        subparsers.add_parser(phase, help=f"Run the '{phase}' phase")
-
-    args = parser.parse_args()
-    handler = _import_phase_handler(args.command)
-    config = _load_config(args.config)
-    logger = LoggerFactory(config.get("general", {})).create_logger("shadowaudit.cli")
-
-    logger.info(f"[INIT] Starting phase: {args.command}")
-    try:
-        handler(config)
-    except Exception as e:
-        logger.error(f"[{args.command.upper()}] Execution failed: {e}")
-        sys.exit(1)
-
-    logger.info(f"[DONE] Phase '{args.command}' completed successfully")
+        return [artifact]
