@@ -22,6 +22,9 @@ class BaseReporter(ABC):
     def generate(self, artifacts: List[Dict[str, Any]]) -> None:
         pass
 
+    def get_logger(self) -> logging.Logger:
+        return logging.getLogger(f"shadowaudit.reporter.{self.get_name()}")
+
     def summarize(self, artifacts: List[Dict[str, Any]]) -> Dict[str, Union[int, float]]:
         summary = {
             "total": len(artifacts),
@@ -44,6 +47,8 @@ class BaseReporter(ABC):
             if "analysis" in art:
                 summary["with_analysis"] += 1
                 severity = art["analysis"].get("severity", 0)
+                if severity >= 4:
+                    summary["high_severity"] += 1
                 if art["analysis"].get("matched_rules"):
                     summary["has_matched_rules"] += 1
                 if severity > summary["max_severity"]:
@@ -63,6 +68,13 @@ class BaseReporter(ABC):
             json.dump(data, f, indent=2, ensure_ascii=False)
         self.logger.info(f"{self.get_name()} wrote file: {full_path}")
         return full_path
+
+    def write_summary_file(self, artifacts: List[Dict[str, Any]]) -> str:
+        summary = self.summarize(artifacts)
+        return self.write_json_file(summary, filename_prefix=f"{self.filename_prefix}_summary")
+
+    def filter_by_severity(self, artifacts: List[Dict[str, Any]], minimum: int = 4) -> List[Dict[str, Any]]:
+        return [a for a in artifacts if a.get("analysis", {}).get("severity", 0) >= minimum]
 
     def group_by_type(self, artifacts: List[Dict[str, Any]]) -> Dict[str, List[Dict[str, Any]]]:
         groups = {}
