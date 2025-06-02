@@ -26,8 +26,6 @@ class BasicInfoCollector(BaseCollector):
             boot_ts = psutil.boot_time()
             uptime_seconds = int(now_utc.timestamp() - boot_ts)
             boot_time_iso = datetime.fromtimestamp(boot_ts, tz=timezone.utc).isoformat()
-        except Exception:
-            pass
 
         artifact = {
             "host_id": hostname,
