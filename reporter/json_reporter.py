@@ -2,7 +2,6 @@ from typing import List, Dict, Any, Optional, Union
 from reporter.base_reporter import BaseReporter
 import json
 import os
-import datetime
 import uuid
 import gzip
 
@@ -49,8 +48,6 @@ class JSONReporter(BaseReporter):
         if self.include_summary:
             summary = self.summarize(data)
             summary_path = self._write(summary, f"{self.filename_prefix}_summary")
-            if summary_path:
-                output_paths.append(summary_path)
 
         self.logger.info(f"JSONReporter completed: {len(output_paths)} files written.")
 
