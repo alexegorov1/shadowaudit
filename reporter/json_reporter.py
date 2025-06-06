@@ -25,9 +25,6 @@ class JSONReporter(BaseReporter):
         self.pretty = pretty_print
         self.filter_high_severity = filter_high_severity
 
-    def get_name(self) -> str:
-        return "json_reporter"
-
     def generate(self, artifacts: List[Dict[str, Any]]) -> None:
         if not artifacts:
             self.logger.info("No artifacts to report.")
