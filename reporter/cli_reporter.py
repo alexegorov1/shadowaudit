@@ -44,11 +44,6 @@ class CLIReporter(BaseReporter):
             summary = self.summarize(filtered)
             self._render_summary(summary)
 
-        if self.show_details:
-            if self.interactive:
-                filtered = self._interactive_filter(filtered)
-            self._render_table(filtered)
-
     def _render_summary(self, summary: Dict[str, Any]) -> None:
         text = Text()
         timestamp = datetime.datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")
