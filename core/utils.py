@@ -17,6 +17,12 @@ def normalize_path(path: str) -> str:
 def is_windows_path(path: str) -> bool:
     return platform.system() == "Windows" or ("\\" in path and ":" in path)
 
+
+def generate_artifact_id(source: str, path: Optional[str] = None, entropy: Optional[str] = None) -> str:
+    token = f"{source}::{path or ''}::{entropy or uuid.uuid4().hex}"
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
 def get_current_utc_timestamp(compact: bool = False, with_millis: bool = False) -> str:
     now = datetime.utcnow().replace(tzinfo=timezone.utc)
     if compact:
@@ -53,6 +59,11 @@ def get_hostname(fqdn: bool = False) -> str:
         return socket.getfqdn() if fqdn else socket.gethostname()
     except Exception:
         return "unknown"
+
+
+def get_temp_dir() -> str:
+    return os.environ.get("TEMP") or os.environ.get("TMP") or "/tmp"
+
 
 def safe_load_json_file(file_path: str, default: Any = None) -> Any:
     try:
@@ -99,6 +110,15 @@ def get_file_sha256(file_path: str, chunk_size: int = 65536) -> str:
 
 def generate_session_uid() -> str:
     return uuid.uuid4().hex
+
+
+def ensure_directory_exists(path: str) -> bool:
+    try:
+        os.makedirs(path, exist_ok=True)
+        return True
+    except Exception:
+        return False
+
 
 def get_disk_usage_percent(path: str = "/") -> float:
     try:
