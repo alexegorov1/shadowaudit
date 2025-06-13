@@ -100,15 +100,6 @@ def get_file_sha256(file_path: str, chunk_size: int = 65536) -> str:
 def generate_session_uid() -> str:
     return uuid.uuid4().hex
 
-
-def ensure_directory_exists(path: str) -> bool:
-    try:
-        os.makedirs(path, exist_ok=True)
-        return True
-    except Exception:
-        return False
-
-
 def get_disk_usage_percent(path: str = "/") -> float:
     try:
         total, used, free = shutil.disk_usage(path)
