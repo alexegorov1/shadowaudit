@@ -17,12 +17,6 @@ def normalize_path(path: str) -> str:
 def is_windows_path(path: str) -> bool:
     return platform.system() == "Windows" or ("\\" in path and ":" in path)
 
-
-def generate_artifact_id(source: str, path: Optional[str] = None, entropy: Optional[str] = None) -> str:
-    token = f"{source}::{path or ''}::{entropy or uuid.uuid4().hex}"
-    return hashlib.sha256(token.encode("utf-8")).hexdigest()
-
-
 def get_current_utc_timestamp(compact: bool = False, with_millis: bool = False) -> str:
     now = datetime.utcnow().replace(tzinfo=timezone.utc)
     if compact:
