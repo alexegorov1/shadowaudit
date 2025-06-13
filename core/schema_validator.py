@@ -20,17 +20,6 @@ class ArtifactSchemaValidator:
         for artifact_type, schema_path in schema_map.items():
             self._load_schema(artifact_type, schema_path)
 
-    def _load_schema(self, schema_id, path):
-        abs_path = os.path.abspath(path)
-        if not os.path.exists(abs_path):
-            raise FileNotFoundError(f"Schema file not found: {abs_path}")
-        with open(abs_path, "r", encoding="utf-8") as f:
-            schema = json.load(f)
-        ValidatorClass = validator_for(schema)
-        ValidatorClass.check_schema(schema)
-        self._schemas[schema_id] = schema
-        self._validators[schema_id] = ValidatorClass(schema)
-
     def validate_artifact(self, artifact):
         artifact_type = artifact.get("artifact_type")
         if artifact_type in self._validators:
