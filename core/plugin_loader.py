@@ -16,9 +16,6 @@ def discover_collectors(directory="collector") -> List[BaseCollector]:
         if not filename.endswith(".py") or filename.startswith("_") or filename == "__init__.py":
             continue
 
-        module_name = filename[:-3]
-        module_path = os.path.join(base_path, filename)
-
         try:
             spec = importlib.util.spec_from_file_location(f"{directory}.{module_name}", module_path)
             if spec and spec.loader:
