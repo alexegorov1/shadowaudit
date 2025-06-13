@@ -16,6 +16,9 @@ def discover_collectors(directory="collector") -> List[BaseCollector]:
         if not filename.endswith(".py") or filename.startswith("_") or filename == "__init__.py":
             continue
 
+        module_name = filename[:-3]
+        module_path = os.path.join(base_path, filename)
+
         try:
             spec = importlib.util.spec_from_file_location(f"{directory}.{module_name}", module_path)
             if spec and spec.loader:
@@ -26,6 +29,8 @@ def discover_collectors(directory="collector") -> List[BaseCollector]:
                     if issubclass(obj, BaseCollector) and obj is not BaseCollector:
                         instance = obj()
                         name = instance.get_name()
+                        if name in seen_names:
+                            raise ValueError(f"Duplicate collector name detected: '{name}'")
                         seen_names.add(name)
                         collectors.append(instance)
         except Exception as e:
