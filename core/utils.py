@@ -54,11 +54,6 @@ def get_hostname(fqdn: bool = False) -> str:
     except Exception:
         return "unknown"
 
-
-def get_temp_dir() -> str:
-    return os.environ.get("TEMP") or os.environ.get("TMP") or "/tmp"
-
-
 def safe_load_json_file(file_path: str, default: Any = None) -> Any:
     try:
         with open(file_path, "r", encoding="utf-8") as f:
