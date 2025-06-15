@@ -14,6 +14,9 @@ def main():
 
     try:
         run_cli()
+    except KeyboardInterrupt:
+        logger.warning("Execution interrupted by user (KeyboardInterrupt).")
+        sys.exit(130)
     except SystemExit:
         raise
     except Exception as exc:
