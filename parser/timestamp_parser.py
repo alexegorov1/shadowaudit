@@ -17,8 +17,6 @@ class TimestampParser:
             parsed = dateutil.parser.parse(raw)
             if not parsed.tzinfo:
                 parsed = self.default_tz.localize(parsed)
-            if prefer_utc:
-                parsed = parsed.astimezone(pytz.UTC)
             return parsed.isoformat()
         except (ValueError, OverflowError) as e:
             self.logger.warning(f"Failed to parse timestamp: {raw} ({e})")
