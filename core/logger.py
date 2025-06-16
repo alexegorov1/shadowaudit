@@ -19,11 +19,6 @@ class LoggerFactory:
 
         formatter = logging.Formatter("[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s")
 
-        if not self._suppress_stdout:
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setFormatter(formatter)
-            logger.addHandler(console_handler)
-
         if self._output_path:
             try:
                 os.makedirs(self._output_path, exist_ok=True)
