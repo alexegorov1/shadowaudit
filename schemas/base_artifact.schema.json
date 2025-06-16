@@ -17,10 +17,21 @@
       "type": "string",
       "minLength": 1,
       "description": "Unique identifier of the host where the artifact was collected"
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Subsystem or module name that generated the artifact (e.g., filesystem, registry)"
+    },
     "collected_at": {
       "type": "string",
       "format": "date-time",
       "description": "UTC timestamp in ISO 8601 format when the artifact was collected"
+    },
+    "artifact_type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Logical classification of the artifact (e.g., file_scan, task_scheduled)"
     },
     "confidence": {
       "type": "number",
@@ -28,6 +39,11 @@
       "maximum": 1.0,
       "description": "Confidence score from 0.0 (low) to 1.0 (high)"
     },
+    "evidence_type": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Type of forensic evidence (e.g., persistence, execution, anomaly)"
+    }
   },
   "additionalProperties": false
 }
