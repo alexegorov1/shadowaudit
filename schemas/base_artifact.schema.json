@@ -28,11 +28,6 @@
       "maximum": 1.0,
       "description": "Confidence score from 0.0 (low) to 1.0 (high)"
     },
-    "evidence_type": {
-      "type": "string",
-      "minLength": 1,
-      "description": "Type of forensic evidence (e.g., persistence, execution, anomaly)"
-    }
   },
   "additionalProperties": false
 }
