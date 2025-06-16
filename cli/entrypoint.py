@@ -32,6 +32,7 @@ class BasicInfoCollector(BaseCollector):
         try:
             boot_ts = psutil.boot_time()
             uptime_seconds = int(time.time() - boot_ts)
+            boot_time = datetime.fromtimestamp(boot_ts, tz=timezone.utc)
             boot_time_iso = boot_time.isoformat()
         except Exception:
             pass
