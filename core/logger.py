@@ -30,8 +30,6 @@ class LoggerFactory:
             except Exception as e:
                 fallback_handler = logging.StreamHandler(sys.stderr)
                 fallback_handler.setFormatter(formatter)
-                logger.addHandler(fallback_handler)
-                logger.error(f"[LOGGER INIT ERROR] Failed to initialize file logger: {e}")
 
         return logger
 
