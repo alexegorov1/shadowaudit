@@ -40,10 +40,6 @@ class CLIReporter(BaseReporter):
 
         filtered = [a for a in artifacts if a.get("analysis", {}).get("severity", 0) >= self.severity_threshold]
 
-        if self.show_summary:
-            summary = self.summarize(filtered)
-            self._render_summary(summary)
-
         if self.show_details:
             if self.interactive:
                 filtered = self._interactive_filter(filtered)
