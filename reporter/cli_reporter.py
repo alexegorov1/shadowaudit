@@ -57,6 +57,15 @@ class CLIReporter(BaseReporter):
             text.append(f"{key.replace('_', ' ').capitalize()}: {value}\n")
         self.console.print(Panel(text, title="Artifact Summary", expand=False, border_style="cyan"))
 
+    def _render_table(self, artifacts: List[Dict[str, Any]]) -> None:
+        table = Table(title="Collected Artifacts", box=box.MINIMAL_DOUBLE_HEAD)
+        table.add_column("Index", style="dim", width=6)
+        table.add_column("Type", style="cyan", no_wrap=True)
+        table.add_column("Path/Source", style="white")
+        table.add_column("Severity", style="bold")
+        table.add_column("Confidence", style="green")
+        table.add_column("Rules", style="magenta")
+
         count = 0
         for i, art in enumerate(track(artifacts[:self.max_display], description="Rendering table...")):
             art_type = art.get("artifact_type", "unknown")
