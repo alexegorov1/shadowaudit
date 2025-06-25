@@ -15,10 +15,6 @@ collector:
   exclude_paths: ["/tmp"]
   max_depth: 3
 
-analyzer:
-  enable_heuristics: true
-  confidence_threshold: 0.6
-
 reporter:
   formats: [json]
   template_path: ./templates
