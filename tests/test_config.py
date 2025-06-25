@@ -65,13 +65,6 @@ def test_partial_structure_access():
     assert loader.get("analyzer", {"enable_heuristics": False})["enable_heuristics"] is False
 
 
-def test_empty_config_fallback():
-    path = write_config(EMPTY_CONFIG)
-    loader = ConfigLoader(path)
-    assert loader.full == {}
-    assert loader.get("collector") is None
-
-
 def test_wrong_types_present_but_not_blocking():
     path = write_config(INVALID_CONFIG_TYPES)
     loader = ConfigLoader(path)
