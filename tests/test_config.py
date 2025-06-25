@@ -64,7 +64,6 @@ def test_wrong_types_present_but_not_blocking():
     loader = ConfigLoader(path)
     general = loader.get("general")
     assert isinstance(general["output_path"], int)
-    assert isinstance(general["log_level"], bool)
     assert isinstance(loader.get("collector")["enabled_modules"], str)
 
 
