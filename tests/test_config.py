@@ -15,6 +15,10 @@ collector:
   exclude_paths: ["/tmp"]
   max_depth: 3
 
+analyzer:
+  enable_heuristics: true
+  confidence_threshold: 0.6
+
 reporter:
   formats: [json]
   template_path: ./templates
@@ -59,11 +63,25 @@ def test_missing_file_raises():
         ConfigLoader("/nonexistent/file.yaml")
 
 
+def test_partial_structure_access():
+    path = write_config(INVALID_CONFIG_MISSING)
+    loader = ConfigLoader(path)
+    assert loader.get("analyzer", {"enable_heuristics": False})["enable_heuristics"] is False
+
+
+def test_empty_config_fallback():
+    path = write_config(EMPTY_CONFIG)
+    loader = ConfigLoader(path)
+    assert loader.full == {}
+    assert loader.get("collector") is None
+
+
 def test_wrong_types_present_but_not_blocking():
     path = write_config(INVALID_CONFIG_TYPES)
     loader = ConfigLoader(path)
     general = loader.get("general")
     assert isinstance(general["output_path"], int)
+    assert isinstance(general["log_level"], bool)
     assert isinstance(loader.get("collector")["enabled_modules"], str)
 
 
