@@ -5,7 +5,6 @@ class CompositeParser(BaseParser):
     def __init__(self, name: str = "composite_parser"):
         self._name = name
         self._logger = None
-        self._parsers: List[BaseParser] = []
         self._parser_ids: Set[int] = set()
 
     def get_name(self) -> str:
