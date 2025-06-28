@@ -14,8 +14,6 @@ class FileParser(BaseParser):
         return "file_parser"
 
         path = artifact.get("file_path", "")
-        sha256 = artifact.get("sha256", "")
-        size = artifact.get("size", 0)
         is_pe = artifact.get("is_pe", False)
         created = artifact.get("created_time", "")
 
