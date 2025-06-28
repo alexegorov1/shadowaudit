@@ -14,6 +14,8 @@ class FileParser(BaseParser):
         return "file_parser"
 
         path = artifact.get("file_path", "")
+        sha256 = artifact.get("sha256", "")
+        size = artifact.get("size", 0)
         is_pe = artifact.get("is_pe", False)
         created = artifact.get("created_time", "")
 
@@ -23,8 +25,14 @@ class FileParser(BaseParser):
         _, ext = os.path.splitext(norm_path)
         artifact["extension"] = ext.lower()
 
+        if ext.lower() in SUSPICIOUS_EXTENSIONS:
+            tags.append("suspicious_extension")
+
         if ext.lower() in PE_EXTENSIONS and not is_pe:
             tags.append("pe_mismatch")
+
+        if SHA256_RE.fullmatch(sha256) is None:
+            tags.append("invalid_sha256")
 
         try:
             ts = created[:19]
