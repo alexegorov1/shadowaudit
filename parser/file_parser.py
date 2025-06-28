@@ -23,9 +23,6 @@ class FileParser(BaseParser):
         _, ext = os.path.splitext(norm_path)
         artifact["extension"] = ext.lower()
 
-        if ext.lower() in SUSPICIOUS_EXTENSIONS:
-            tags.append("suspicious_extension")
-
         if ext.lower() in PE_EXTENSIONS and not is_pe:
             tags.append("pe_mismatch")
 
