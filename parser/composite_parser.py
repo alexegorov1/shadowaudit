@@ -8,8 +8,7 @@ class CompositeParser(BaseParser):
         self._parsers: List[BaseParser] = []
         self._parser_ids: Set[int] = set()
 
-    def get_name(self) -> str:
-        return self._name
+
 
     def add_parser(self, parser: BaseParser) -> None:
         pid = id(parser)
