@@ -11,8 +11,7 @@ class CompositeParser(BaseParser):
     def get_name(self) -> str:
         return self._name
 
-    def supported_types(self) -> List[str]:
-        return ["*"]
+
 
     def add_parser(self, parser: BaseParser) -> None:
         pid = id(parser)
