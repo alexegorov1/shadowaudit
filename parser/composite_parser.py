@@ -12,7 +12,6 @@ class CompositeParser(BaseParser):
         return self._name
 
 
-
     def add_parser(self, parser: BaseParser) -> None:
         pid = id(parser)
         if pid in self._parser_ids:
