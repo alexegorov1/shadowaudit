@@ -30,6 +30,8 @@ def _collect_plugin_classes(module: ModuleType) -> Dict[str, List]:
         obj = getattr(module, attr)
         if _is_subclass(obj, BaseCollector):
             found["collectors"].append(obj)
+        elif _is_subclass(obj, BaseAnalyzer):
+            found["analyzers"].append(obj)
         elif _is_subclass(obj, BaseReporter):
             found["reporters"].append(obj)
 
