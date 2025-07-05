@@ -42,6 +42,10 @@ def discover_plugins(directory: str = "plugins") -> Dict[str, List]:
     seen_names = set()
     plugin_dir = os.path.abspath(directory)
 
+    if not os.path.isdir(plugin_dir):
+        logger.debug(f"Plugin directory does not exist: {plugin_dir}")
+        return plugins
+
     sys.path.insert(0, plugin_dir)
 
     for filename in sorted(os.listdir(plugin_dir)):
