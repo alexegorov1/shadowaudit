@@ -37,7 +37,6 @@ def _collect_plugin_classes(module: ModuleType) -> Dict[str, List]:
 
     return found
 
-
 def discover_plugins(directory: str = "plugins") -> Dict[str, List]:
     plugins: Dict[str, List] = {"collectors": [], "analyzers": [], "reporters": []}
     seen_names = set()
