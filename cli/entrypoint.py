@@ -50,5 +50,4 @@ class BasicInfoCollector(BaseCollector):
             "boot_time": boot_time_iso,
             "uptime": uptime_seconds
         }
-
         return [artifact]
