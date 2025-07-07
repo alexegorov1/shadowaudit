@@ -18,7 +18,6 @@ def _load_module(name: str, path: str) -> ModuleType:
     spec.loader.exec_module(module)
     return module
 
-
 def _is_subclass(obj, base: Type) -> bool:
     return isinstance(obj, type) and issubclass(obj, base) and obj is not base
 
