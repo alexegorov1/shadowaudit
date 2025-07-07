@@ -22,7 +22,6 @@ def _load_module(name: str, path: str) -> ModuleType:
 def _is_subclass(obj, base: Type) -> bool:
     return isinstance(obj, type) and issubclass(obj, base) and obj is not base
 
-
 def _collect_plugin_classes(module: ModuleType) -> Dict[str, List]:
     found = {"collectors": [], "analyzers": [], "reporters": []}
 
