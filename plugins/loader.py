@@ -18,8 +18,10 @@ def _load_module(name: str, path: str) -> ModuleType:
     spec.loader.exec_module(module)
     return module
 
+
 def _is_subclass(obj, base: Type) -> bool:
     return isinstance(obj, type) and issubclass(obj, base) and obj is not base
+
 
 def _collect_plugin_classes(module: ModuleType) -> Dict[str, List]:
     found = {"collectors": [], "analyzers": [], "reporters": []}
@@ -28,6 +30,8 @@ def _collect_plugin_classes(module: ModuleType) -> Dict[str, List]:
         obj = getattr(module, attr)
         if _is_subclass(obj, BaseCollector):
             found["collectors"].append(obj)
+        elif _is_subclass(obj, BaseAnalyzer):
+            found["analyzers"].append(obj)
         elif _is_subclass(obj, BaseReporter):
             found["reporters"].append(obj)
 
@@ -38,6 +42,9 @@ def discover_plugins(directory: str = "plugins") -> Dict[str, List]:
     seen_names = set()
     plugin_dir = os.path.abspath(directory)
 
+    if not os.path.isdir(plugin_dir):
+        logger.debug(f"Plugin directory does not exist: {plugin_dir}")
+        return plugins
 
     sys.path.insert(0, plugin_dir)
 
@@ -46,6 +53,7 @@ def discover_plugins(directory: str = "plugins") -> Dict[str, List]:
             continue
 
         module_name = filename[:-3]
+        module_path = os.path.join(plugin_dir, filename)
 
         try:
             module = _load_module(module_name, module_path)
