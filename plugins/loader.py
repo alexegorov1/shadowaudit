@@ -51,7 +51,6 @@ def discover_plugins(directory: str = "plugins") -> Dict[str, List]:
             continue
 
         module_name = filename[:-3]
-        module_path = os.path.join(plugin_dir, filename)
 
         try:
             module = _load_module(module_name, module_path)
