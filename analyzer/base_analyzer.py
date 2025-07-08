@@ -6,7 +6,6 @@ import copy
 class BaseAnalyzer(ABC):
     def __init__(self):
         self.logger = self.get_logger()
-        self._context: Optional[Dict[str, Any]] = None
         self._severity_map: Dict[str, int] = {}
 
     @abstractmethod
