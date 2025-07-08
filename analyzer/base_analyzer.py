@@ -13,7 +13,6 @@ class BaseAnalyzer(ABC):
     def get_name(self) -> str:
         pass
 
-
     def get_logger(self) -> logging.Logger:
         return logging.getLogger(f"shadowaudit.analyzer.{self.get_name()}")
 
