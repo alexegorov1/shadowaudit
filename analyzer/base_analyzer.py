@@ -13,7 +13,6 @@ class BaseAnalyzer(ABC):
     def get_name(self) -> str:
         pass
 
-
     def should_analyze(self, artifact: Dict[str, Any]) -> bool:
         artifact_type = artifact.get("artifact_type", "").lower()
         return "*" in self.supported_types() or artifact_type in self.supported_types()
