@@ -6,11 +6,23 @@ import copy
 class BaseAnalyzer(ABC):
     def __init__(self):
         self.logger = self.get_logger()
+        self._context: Optional[Dict[str, Any]] = None
         self._severity_map: Dict[str, int] = {}
 
     @abstractmethod
     def get_name(self) -> str:
         pass
+
+    @abstractmethod
+    def analyze(self, artifacts: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        pass
+
+    @abstractmethod
+    def supported_types(self) -> List[str]:
+        pass
+
+    def get_logger(self) -> logging.Logger:
+        return logging.getLogger(f"shadowaudit.analyzer.{self.get_name()}")
 
     def should_analyze(self, artifact: Dict[str, Any]) -> bool:
         artifact_type = artifact.get("artifact_type", "").lower()
@@ -33,6 +45,9 @@ class BaseAnalyzer(ABC):
 
     def analyze_one(self, artifact: Dict[str, Any]) -> Dict[str, Any]:
         return self.analyze([artifact])[0]
+
+    def attach_context(self, context: Dict[str, Any]):
+        self._context = context
 
     def enrich_result(self, artifact: Dict[str, Any], matched: Union[str, List[str]], severity: Optional[int] = None) -> Dict[str, Any]:
         result = copy.deepcopy(artifact)
