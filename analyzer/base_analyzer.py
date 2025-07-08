@@ -34,7 +34,6 @@ class BaseAnalyzer(ABC):
     def analyze_one(self, artifact: Dict[str, Any]) -> Dict[str, Any]:
         return self.analyze([artifact])[0]
 
-
     def enrich_result(self, artifact: Dict[str, Any], matched: Union[str, List[str]], severity: Optional[int] = None) -> Dict[str, Any]:
         result = copy.deepcopy(artifact)
         result.setdefault("analysis", {})
