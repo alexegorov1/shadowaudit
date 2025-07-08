@@ -34,8 +34,7 @@ class BaseAnalyzer(ABC):
     def analyze_one(self, artifact: Dict[str, Any]) -> Dict[str, Any]:
         return self.analyze([artifact])[0]
 
-    def attach_context(self, context: Dict[str, Any]):
-        self._context = context
+
 
     def enrich_result(self, artifact: Dict[str, Any], matched: Union[str, List[str]], severity: Optional[int] = None) -> Dict[str, Any]:
         result = copy.deepcopy(artifact)
