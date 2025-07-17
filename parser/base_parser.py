@@ -12,7 +12,6 @@ SHA256_RE = re.compile(r"^[a-fA-F0-9]{64}$")
 class FileParser(BaseParser):
     def get_name(self) -> str:
         return "file_parser"
-
     
     def supported_types(self) -> List[str]:
         return ["file_scan"]
