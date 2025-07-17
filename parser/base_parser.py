@@ -15,7 +15,6 @@ class FileParser(BaseParser):
     
     def supported_types(self) -> List[str]:
         return ["file_scan"]
-
     
     def parse(self, raw_artifact: Dict[str, Any]) -> Dict[str, Any]:
         artifact = copy.deepcopy(raw_artifact)
