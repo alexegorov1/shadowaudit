@@ -22,6 +22,7 @@ class FileParser(BaseParser):
         artifact = copy.deepcopy(raw_artifact)
         tags = []
 
+        
         path = artifact.get("file_path", "")
         sha256 = artifact.get("sha256", "")
         size = artifact.get("size", 0)
