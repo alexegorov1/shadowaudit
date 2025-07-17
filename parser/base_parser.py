@@ -46,7 +46,6 @@ class FileParser(BaseParser):
 
         if SHA256_RE.fullmatch(sha256) is None:
             tags.append("invalid_sha256")
-
         
         try:
             ts = created[:19]
