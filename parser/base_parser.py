@@ -13,6 +13,7 @@ class FileParser(BaseParser):
     def get_name(self) -> str:
         return "file_parser"
 
+    
     def supported_types(self) -> List[str]:
         return ["file_scan"]
 
