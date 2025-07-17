@@ -19,7 +19,6 @@ class FileParser(BaseParser):
     def parse(self, raw_artifact: Dict[str, Any]) -> Dict[str, Any]:
         artifact = copy.deepcopy(raw_artifact)
         tags = []
-
         
         path = artifact.get("file_path", "")
         sha256 = artifact.get("sha256", "")
