@@ -17,11 +17,6 @@
         "is_signed",
         "created_time"
       ],
-      "properties": {
-        "file_path": {
-          "type": "string",
-          "minLength": 1,
-        },
         "size": {
           "type": "integer",
           "minimum": 0,
