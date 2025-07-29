@@ -22,7 +22,6 @@
         "file_path": {
           "type": "string",
           "minLength": 1,
-          "description": "Absolute path to the file"
         },
         "size": {
           "type": "integer",
