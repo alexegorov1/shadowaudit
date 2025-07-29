@@ -14,7 +14,6 @@
         "file_path",
         "size",
         "sha256",
-        "is_pe",
         "is_signed",
         "created_time"
       ],
